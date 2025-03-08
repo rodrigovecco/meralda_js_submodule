@@ -82,11 +82,13 @@ function mw_devextreme_datagrid_man(params){
 		if (!dg) return false;
 	
 		var columnCount = dg.columnCount();
+		var allData={};
 		for (var i = 0; i < columnCount; i++) {
 			var col = dg.columnOption(i); // Retrieve full column options
 			let name = col.name;
 	
 			if (name) {
+				allData[name] = col;
 				data[name] = {};
 				data[name]._index = i;
 	
@@ -107,11 +109,11 @@ function mw_devextreme_datagrid_man(params){
 						}
 					}
 	
-					// ✅ Ensure `visible` is always included (default: true)
-					data[name]["visible"] = col.visible !== false ? 1 : 0;
+					
 				}
 			}
 		}
+		//console.log("allDataCols",allData);
 		return data;
 	};
 	

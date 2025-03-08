@@ -102,12 +102,26 @@ function mw_ui_grid(info){
 		this.saveColsStateTimeout=setTimeout(function(){_this.saveColsState();},1000);
 	
 	}
+	this.resetUserPrefCols=function(){
+		var a=this.getAjaxLoader();
+		if(!a){
+			return false;	
+		}
+		
+		var url=this.get_xmlcmd_url("resetcolsstate");
+		var _this=this;
+		a.addOnLoadAcctionUnique(function(){_this.onSaveColsStateResponse()});
+		a.set_url(url);
+		
+		a.run();
+	}
+		
 	this.saveColsState=function(){
 		var a=this.getAjaxLoader();
 		if(!a){
 			return false;	
 		}
-		var data={cols:this.datagrid_man.getCurrentColumnsOptionsByName(["sortIndex","visible","width","sortOrder"])};
+		var data={cols:this.datagrid_man.getCurrentColumnsOptionsByName(["visibleIndex","sortIndex","visible","width","sortOrder"])};
 		console.log("saveColsState",data);
 
 		var url=this.get_xmlcmd_url("savecolsstate",data);
@@ -123,7 +137,7 @@ function mw_ui_grid(info){
 		var resp=this.getAjaxDataResponse(true);
 		console.log("onSaveColsStateResponse",resp.params);
 		if(resp){
-			//this.show_popup_notify(resp.get_param_if_object("jsresponse.notify"));
+			this.show_popup_notify(resp.get_param_if_object("notify"));
 			if(resp.get_param("ok")){
 				//
 			}
