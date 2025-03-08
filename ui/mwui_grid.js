@@ -2,9 +2,15 @@ function mw_ui_grid(info){
 	this.info=new mw_obj();
 	this.info.set_params(info);
 	this.afterDataGridManSetOnLoaderCus=function(){
-			
+		
 	}
-	
+	this.afterDataGridManSetOnLoaderNative=function(){
+		if(this.onGridOptionChangedEnabled()){
+			var _this=this;
+			this.grid.on("optionChanged",function(e){_this.onGridOptionChanged(e)});
+			
+		}	
+	}
 	
 	this.loadGridManager=function(){
 		var loader=this.getGridLoader();
@@ -15,8 +21,10 @@ function mw_ui_grid(info){
 		
 	}
 	this.beforeDataGridManSetOnLoader=function(){
-			
+		
+	
 	}
+	
 	
 	this.afterDataGridManSetOnLoader=function(){
 		if(!this.gridLoader){
@@ -25,14 +33,19 @@ function mw_ui_grid(info){
 		if(this.gridLoader.datagridman){
 			
 			this.set_datagrid_man(this.gridLoader.datagridman);
+			
+
+
 			var g=this.gridLoader.datagridman.get_data_grid();
 			
 			if(g){
 				this.grid=g;
+				this.afterDataGridManSetOnLoaderNative();
 				this.afterDataGridManSetOnLoaderCus();
 			}
 		}
 	}
+
 	this.createGridLoader=function(){
 		var bodyelem=this.get_ui_elem("datagrid_body");
 		var container=this.get_ui_elem("datagrid_container");
@@ -72,9 +85,76 @@ function mw_ui_grid(info){
 	
 	
 	this.set_datagrid_man=function(man){
+		var _this=this;
 		this.datagrid_man=man;
 		this.datagrid_man.ui=this;
+		
+	}
+	this.clearSaveColsStateTimeout=function(){
+		if(this.saveColsStateTimeout){
+			clearTimeout(this.saveColsStateTimeout);
+			this.saveColsStateTimeout=false;	
+		}
+	}
+	this.startSaveColsStateTimeout=function(){
+		var _this=this;
+		this.clearSaveColsStateTimeout();
+		this.saveColsStateTimeout=setTimeout(function(){_this.saveColsState();},1000);
+	
+	}
+	this.saveColsState=function(){
+		var a=this.getAjaxLoader();
+		if(!a){
+			return false;	
+		}
+		var data={cols:this.datagrid_man.getCurrentColumnsOptionsByName(["sortIndex","visible","width","sortOrder"])};
+		console.log("saveColsState",data);
+
+		var url=this.get_xmlcmd_url("savecolsstate",data);
+		var _this=this;
+		a.addOnLoadAcctionUnique(function(){_this.onSaveColsStateResponse()});
+		a.set_url(url);
+		//a.post(data);
+		a.run();//para depuración, cambiar por post en produccion
+
+
+	}
+	this.onSaveColsStateResponse=function(){
+		var resp=this.getAjaxDataResponse(true);
+		console.log("onSaveColsStateResponse",resp.params);
+		if(resp){
+			//this.show_popup_notify(resp.get_param_if_object("jsresponse.notify"));
+			if(resp.get_param("ok")){
+				//
+			}
 			
+		}
+	}
+	this.onGridOptionChanged=function(e){
+		
+		if(e.name=="columns"){
+			if(this.saveColsStateEnable()){
+				this.startSaveColsStateTimeout();
+			}
+		}
+		//this.datagrid_man.getColCodeFromOptionsChangeData(e);
+		//console.log("onGridOptionChanged options",this.datagrid_man.getCurrentColumnsOptionsByName());
+
+	}
+	this.saveColsStateEnable=function(){
+		if(this.params.get_param("userColsSelectedRememberEnabled")){
+			return true;
+		}
+		return false;
+	}
+	this.onGridOptionChangedEnabled=function(){
+		if(this.params.get_param("onGridOptionChangedEnabled")){
+			return true;
+		}
+		if(this.params.get_param("userColsSelectedRememberEnabled")){
+			return true;
+		}
+		return false;
 	}
 	
 	this.set_grid=function(name){
