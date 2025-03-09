@@ -1,3 +1,4 @@
+//20250307
 function mw_devextreme_data(params){
 	this.params=new mw_obj();
 	this.params.set_params(params);
@@ -102,6 +103,7 @@ function mw_devextreme_data(params){
 				return _this.getTotalCount(options);
 				
 			},
+			key: this.getDataKey()
 		});
 		return this.DataStore;	
 	}
