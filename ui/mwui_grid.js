@@ -121,7 +121,7 @@ function mw_ui_grid(info){
 		if(!a){
 			return false;	
 		}
-		var data={cols:this.datagrid_man.getCurrentColumnsOptionsByName(["visibleIndex","sortIndex","visible","width","sortOrder"])};
+		var data={cols:this.datagrid_man.getCurrentColumnsOptionsByName(["visibleIndex","sortIndex","visible","width","sortOrder","selectedFilterOperation","filterValue"])};
 		console.log("saveColsState",data);
 
 		var url=this.get_xmlcmd_url("savecolsstate",data);
@@ -152,6 +152,7 @@ function mw_ui_grid(info){
 			}
 		}
 		//this.datagrid_man.getColCodeFromOptionsChangeData(e);
+		//console.log("onGridOptionChanged e",e);
 		//console.log("onGridOptionChanged options",this.datagrid_man.getCurrentColumnsOptionsByName());
 
 	}
@@ -168,6 +169,7 @@ function mw_ui_grid(info){
 		if(this.params.get_param("userColsSelectedRememberEnabled")){
 			return true;
 		}
+		
 		return false;
 	}
 	
