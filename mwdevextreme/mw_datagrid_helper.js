@@ -101,8 +101,10 @@ function mw_devextreme_datagrid_man(params){
 						let value = col[key];
 	
 						if (propsToInclude && !propsToInclude.includes(key)) continue; // Skip unwanted properties
-	
-						if (typeof value === "string" || typeof value === "number") {
+						if (value instanceof Date) {
+							// Convert Date objects to string in ISO 8601 format
+							data[name][key] = value.toISOString().substring(0, 10); // Keeps only the date part
+						}else if (typeof value === "string" || typeof value === "number") {
 							data[name][key] = value;
 						} else if (typeof value === "boolean") {
 							data[name][key] = value ? 1 : 0;
@@ -113,7 +115,8 @@ function mw_devextreme_datagrid_man(params){
 				}
 			}
 		}
-		//console.log("allDataCols",allData);
+		console.log("allDataCols",allData);
+		console.log("data",data);
 		return data;
 	};
 	
