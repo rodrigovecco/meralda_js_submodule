@@ -287,7 +287,7 @@ function mw_datainput_dx_selectBoxRemote(options){
 		var _this = this;
 		var dataStore = this.getDataStore();
 	
-		// Add new item to the data store
+		// Add new item to the data store...
 		dataStore.insert(newItemData).done(function(insertedItem) {
 			console.log("Inserted Item:", insertedItem);
 	
