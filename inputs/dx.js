@@ -285,34 +285,31 @@ function mw_datainput_dx_selectBoxRemote(options){
 	}
 	this.addAndSelectItem = function(newItemData, callback) {
 		var _this = this;
+		var dsMan = this.getDataSourceMan();
+		if (dsMan) {
+			dsMan.add2cache(newItemData.id,newItemData);
+			console.log("Added to cache:", newItemData.id, newItemData);
+		}
+
 		var dataStore = this.getDataStore();
 
-		var novalset=false;
-		if(this.options.get_param_or_def("avoidsetvalueonoptioncreated",false)){
-			novalset=true;	
-		}
-	
+		
+		
 		// Add new item to the data store...
 		dataStore.insert(newItemData).done(function(insertedItem) {
 			console.log("Inserted Item:", insertedItem);
-	
-			// Reload the data source to include the new item
+			
 			_this.getDataSource().load().done(function() {
 				// Set the newly added item as the selected value
-				if(!novalset){
-					_this.set_input_value(insertedItem.id);
-					console.log("Setting input value after option inserted:", insertedItem.id);					
-				}else{
-					console.log("NOT Setting input value after option inserted:", insertedItem.id);	
-
-				}
-				//
+				_this.set_input_value(insertedItem.id);
+				console.log("Setting input value after option inserted:", insertedItem.id);					
 				
 				// Execute callback if provided
 				if (callback && typeof callback === "function") {
 					callback(insertedItem);
 				}
 			});
+			
 		}).fail(function(error) {
 			console.error("Error adding item:", error);
 		});

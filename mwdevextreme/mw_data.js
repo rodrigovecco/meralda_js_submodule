@@ -84,20 +84,49 @@ function mw_devextreme_data(params){
 		return deferred.promise();
 			
 	}
-	this.DSloadByKey=function(key,extra){
-		//Beta
+	
+
+	/////BETA
+	this.add2cache=function(id,data){
+		if(!this.cache){
+			this.cache={};	
+		}
+		if(!id){
+			return false;	
+		}
+		if(!data){
+			return false;	
+		}
+		this.cache[id]=data;
+
+	}
+	this.DSloadByKeyCache = function(key, extra) {
+		var _this = this;
 		var deferred = $.Deferred();
-		var loadOptions = {
-			filter: [this.getDataKey(), "=", key],
-			requireTotalCount: false
-		};
-		var loader=new mw_devextreme_data_load_request(this,deferred,loadOptions);
-		if(!loader.doLoad()){
+	
+		if (this.cache && this.cache[key]) {
+			console.log("✅ Valor encontrado en cache:", key);
+			deferred.resolve(this.cache[key]);
 			return deferred.promise();
 		}
+	
+		console.log("⏳ Valor no en cache. Consultando servidor:", key);
+		
+		// Fallback a DSloadByKey si existe
+		if (typeof this.DSloadByKey === "function") {
+			this.DSloadByKey(key, extra).done(function(item) {
+				_this.add2cache(key, item); // Guarda en cache
+				deferred.resolve(item);
+			}).fail(function(err) {
+				deferred.reject(err);
+			});
+		} else {
+			deferred.reject("No DSloadByKey implementation available");
+		}
+	
 		return deferred.promise();
-			
-	}
+	};
+
 	
 	this.createDataStore=function(){
 		var _this=this;
@@ -107,7 +136,7 @@ function mw_devextreme_data(params){
 			},
 			byKey: function(key, extra) {
 				console.log("DataStore byKey "+key,extra);
-				//return _this.DSloadByKey(key,extra);
+				return _this.DSloadByKeyCache(key,extra);
 			},
 			update: function(values) {
 				console.log("DataStore update",values);
