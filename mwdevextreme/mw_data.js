@@ -76,6 +76,21 @@ function mw_devextreme_data(params){
 	}
 	this.DSload=function(loadOptions){
 		var deferred = $.Deferred();
+		
+		var loader=new mw_devextreme_data_load_request(this,deferred,loadOptions);
+		if(!loader.doLoad()){
+			return deferred.promise();
+		}
+		return deferred.promise();
+			
+	}
+	this.DSloadByKey=function(key,extra){
+		//Beta
+		var deferred = $.Deferred();
+		var loadOptions = {
+			filter: [this.getDataKey(), "=", key],
+			requireTotalCount: false
+		};
 		var loader=new mw_devextreme_data_load_request(this,deferred,loadOptions);
 		if(!loader.doLoad()){
 			return deferred.promise();
@@ -92,6 +107,7 @@ function mw_devextreme_data(params){
 			},
 			byKey: function(key, extra) {
 				console.log("DataStore byKey "+key,extra);
+				//return _this.DSloadByKey(key,extra);
 			},
 			update: function(values) {
 				console.log("DataStore update",values);
