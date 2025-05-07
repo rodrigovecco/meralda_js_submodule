@@ -15,8 +15,12 @@ function mw_ui_frm(info){
 		}
 
 		this.ctrs.append_to_container(e);
+		this.afterAppendCtrs();
 		
 	
+
+	}
+	this.afterAppendCtrs=function(){
 
 	}
 
