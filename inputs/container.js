@@ -2,6 +2,62 @@ function mw_datainput_item_group_adv(options){
 	mw_datainput_item_gr_base.call(this,options);
 	
 }
+function mw_datainput_item_group_oncols(options){
+	mw_datainput_item_gr_base.call(this,options);
+	
+	this.append_to_container=function(container){
+		
+		this.beforeAppend();
+		this.itemsContainer=document.createElement("div");
+		//$(this.itemsContainer).addClass("container");
+		container.appendChild(this.itemsContainer);
+		this.itemsSubContainer=document.createElement("div");
+		$(this.itemsSubContainer).addClass("row");
+		this.itemsContainer.appendChild(this.itemsSubContainer);
+		if(!this.sub_items_list){
+			return false;	
+		}
+		var list=this.sub_items_list.getList();
+		if(!list){
+			return false;	
+		}
+		for(var i =0; i<list.length;i++){
+			let subItem=list[i];
+				let subItemContainer=document.createElement("div");
+			$(subItemContainer).addClass("col-"+this.getColSizeChild(subItem));
+			this.beforeAppendChild(subItem,subItemContainer);
+			this.itemsSubContainer.appendChild(subItemContainer);
+				subItem.append_to_container(subItemContainer);
+
+		}
+	
+		this.afterAppend();
+		return true;
+		
+
+	}
+	this.getColSizeChild=function(child){
+		var p=mw_getInt(child.options.get_param_or_def("parentGrid.colSize",0));
+		if(p<=0){
+			return 12;
+		}
+		if(p>12){
+			return 12;
+		}
+		return p;		
+	}
+	this.beforeAppendChild=function(child,childContainer){
+		//todo: other col sizes (sm, xl, etc)
+		var p=child.options.get_param_or_def("parentGrid.classForContainer");
+		if(p){
+			$(childContainer).addClass(p);
+		}
+	}
+	
+	
+}
+
+
 function mw_datainput_item_group_btGrid(options){
 	mw_datainput_item_gr_base.call(this,options);
 	this.createBTGrid=function(){

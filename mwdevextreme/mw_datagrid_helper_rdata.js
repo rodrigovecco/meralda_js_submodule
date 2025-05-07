@@ -17,6 +17,8 @@ function mw_devextreme_datagrid_man_rdata(params){
 	this.createDataSourceMan=function(){
 		var _this=this;
 		var params=this.params.get_param_if_object("dataSourceMan",true);
+
+		//console.log("createDataSourceMan",params);
 		if(mw_is_function(params["isDSMan"])){
 			this.dataSourceMan=params;
 		}else{

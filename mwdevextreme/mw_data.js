@@ -1,3 +1,4 @@
+//20250307
 function mw_devextreme_data(params){
 	this.params=new mw_obj();
 	this.params.set_params(params);
@@ -75,6 +76,7 @@ function mw_devextreme_data(params){
 	}
 	this.DSload=function(loadOptions){
 		var deferred = $.Deferred();
+		
 		var loader=new mw_devextreme_data_load_request(this,deferred,loadOptions);
 		if(!loader.doLoad()){
 			return deferred.promise();
@@ -82,6 +84,49 @@ function mw_devextreme_data(params){
 		return deferred.promise();
 			
 	}
+	
+
+	/////BETA
+	this.add2cache=function(id,data){
+		if(!this.cache){
+			this.cache={};	
+		}
+		if(!id){
+			return false;	
+		}
+		if(!data){
+			return false;	
+		}
+		this.cache[id]=data;
+
+	}
+	this.DSloadByKeyCache = function(key, extra) {
+		var _this = this;
+		var deferred = $.Deferred();
+	
+		if (this.cache && this.cache[key]) {
+			console.log("✅ Valor encontrado en cache:", key);
+			deferred.resolve(this.cache[key]);
+			return deferred.promise();
+		}
+	
+		console.log("⏳ Valor no en cache. Consultando servidor:", key);
+		
+		// Fallback a DSloadByKey si existe
+		if (typeof this.DSloadByKey === "function") {
+			this.DSloadByKey(key, extra).done(function(item) {
+				_this.add2cache(key, item); // Guarda en cache
+				deferred.resolve(item);
+			}).fail(function(err) {
+				deferred.reject(err);
+			});
+		} else {
+			deferred.reject("No DSloadByKey implementation available");
+		}
+	
+		return deferred.promise();
+	};
+
 	
 	this.createDataStore=function(){
 		var _this=this;
@@ -91,6 +136,7 @@ function mw_devextreme_data(params){
 			},
 			byKey: function(key, extra) {
 				console.log("DataStore byKey "+key,extra);
+				return _this.DSloadByKeyCache(key,extra);
 			},
 			update: function(values) {
 				console.log("DataStore update",values);
@@ -102,6 +148,7 @@ function mw_devextreme_data(params){
 				return _this.getTotalCount(options);
 				
 			},
+			key: this.getDataKey()
 		});
 		return this.DataStore;	
 	}

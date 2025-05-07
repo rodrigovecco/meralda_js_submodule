@@ -75,8 +75,72 @@ function mw_devextreme_datagrid_man(params){
 	this.data=new mw_objcol();//no usado
 	this.data_key="id";//verificar uso
 	
+	this.getCurrentColumnsOptionsByName = function(propsToInclude, unsafe) {
+		var data = {};
+		var dg = this.get_data_grid();
+	
+		if (!dg) return false;
+	
+		var columnCount = dg.columnCount();
+		var allData={};
+		for (var i = 0; i < columnCount; i++) {
+			var col = dg.columnOption(i); // Retrieve full column options
+			let name = col.name;
+	
+			if (name) {
+				allData[name] = col;
+				data[name] = {};
+				data[name]._index = i;
+	
+				if (unsafe) {
+					// Copy everything, ensuring `visible` is always included
+					data[name] = { ...col, _index: i, visible: col.visible ?? true };
+				} else {
+					// Only copy selected properties OR all safe properties if `propsToInclude` is not set
+					for (let key in col) {
+						let value = col[key];
+	
+						if (propsToInclude && !propsToInclude.includes(key)) continue; // Skip unwanted properties
+						if (value instanceof Date) {
+							// Convert Date objects to string in ISO 8601 format
+							data[name][key] = value.toISOString().substring(0, 10); // Keeps only the date part
+						}else if (typeof value === "string" || typeof value === "number") {
+							data[name][key] = value;
+						} else if (typeof value === "boolean") {
+							data[name][key] = value ? 1 : 0;
+						}
+					}
+	
+					
+				}
+			}
+		}
+		console.log("allDataCols",allData);
+		console.log("data",data);
+		return data;
+	};
 	
 	
+	/*
+	this.getColCodeFromOptionsChangeData=function(e){
+		if (typeof e.fullName === "string" && e.fullName.startsWith("columns[")) {
+            const match = e.fullName.match(/^columns\[(\d+)\]/);
+            
+            if (match) {
+                const columnIndex = parseInt(match[1], 10);
+                console.log("Changed Column Index:", columnIndex);
+                console.log("Changed Property:", e.name);
+                console.log("New Value:", e.value);
+            }
+        }
+
+	}
+		*/
+
+
+
+
+
 	this.lookups=new mw_objcol();
 	this.isNewData=function(data){
 		return false;
@@ -227,7 +291,7 @@ function mw_devextreme_datagrid_man(params){
 		}
 	}
 	this.onDataGridInitialized=function(e){
-		//console.log("onDataGridInitialized",e);
+		console.log("onDataGridInitialized",e);
 		if(!this._dataGrid_events){
 			return;	
 		}
