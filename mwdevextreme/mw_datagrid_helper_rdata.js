@@ -98,11 +98,13 @@ function mw_devextreme_datagrid_man_rdataedit(params){
 			
 	}
 	this.onEditorPreparing=function(info){
+		this.onEditorPreparingFixFilterRowSelect(info);
 		if(this.params.get_param_or_def("onEditorPreparingColsEnabled")||this.onEditorPreparingColsEnabled){
 			if(info.parentType=="dataRow"){
 				this.onEditorPreparingUpdateCols(info);	
 			}
 		}
+
 	}
 	this.onEditorPreparingUpdateCols=function(info){
 		//console.log("onEditorPreparingUpdateCols",info);

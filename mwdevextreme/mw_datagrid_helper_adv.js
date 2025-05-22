@@ -699,7 +699,7 @@ function mw_devextreme_datagrid_man_adv(params){
 	}
 
 	this.loadDataByAjax=function(params,url){
-		console.log("dd");
+		
 		if(!url){
 			url=this.params.get_param_or_def("loadDataURL",false);	
 		}
@@ -899,6 +899,10 @@ function mw_devextreme_datagrid_man_adv(params){
 			}
 		}
 		this.create_data_grid_optionsExcelExport(ops);
+		if (!ops['onEditorPreparing']) {
+			ops['onEditorPreparing'] = function(e) { _this.onEditorPreparing(e); };
+			console.log("onEditorPreparing  created");
+		}
 		var list=this.columns.get_items_by_index();
 		ops.columns=this.get_columns_options();
 		if(this.ds_cfg){

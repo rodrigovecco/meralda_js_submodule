@@ -11,7 +11,13 @@ function mw_ui_grid(info){
 			
 		}	
 	}
-	
+	this.clearFilters = function(){
+		if (this.datagrid_man && this.datagrid_man.clearFilters) {
+			return this.datagrid_man.clearFilters();
+		}
+		console.warn("Unable to clear filters: datagrid_man not available or missing clearFilters method");
+		return false;
+	};
 	this.loadGridManager=function(){
 		var loader=this.getGridLoader();
 		if(!loader){
@@ -121,7 +127,7 @@ function mw_ui_grid(info){
 		if(!a){
 			return false;	
 		}
-		var data={cols:this.datagrid_man.getCurrentColumnsOptionsByName(["visibleIndex","sortIndex","visible","width","sortOrder","selectedFilterOperation","filterValue"])};
+		var data={cols:this.datagrid_man.getCurrentColumnsOptionsByName(["visibleIndex","sortIndex","visible","width","sortOrder"])};
 		console.log("saveColsState",data);
 
 		var url=this.get_xmlcmd_url("savecolsstate",data);
@@ -130,10 +136,40 @@ function mw_ui_grid(info){
 		a.set_url(url);
 		//a.post(data);
 		a.run();//para depuración, cambiar por post en produccion
+		
 
 
 	}
 	this.onSaveColsStateResponse=function(){
+		var resp=this.getAjaxDataResponse(true);
+		console.log("onSaveColsStateResponse",resp.params);
+		if(resp){
+			this.show_popup_notify(resp.get_param_if_object("notify"));
+			if(resp.get_param("ok")){
+				//
+			}
+			
+		}
+	}
+	this.saveFilters=function(){
+		var a=this.getAjaxLoader();
+		if(!a){
+			return false;	
+		}
+		var data={filters:{cols:this.datagrid_man.getCurrentColumnsOptionsByName(["selectedFilterOperation","filterValue"])}};
+		//todo: other filters
+		console.log("saveFilters",data);
+
+		var url=this.get_xmlcmd_url("savefilters",data);
+		var _this=this;
+		a.addOnLoadAcctionUnique(function(){_this.onSaveColsStateResponse()});
+		a.set_url(url);
+		//a.post(data);
+		a.run();//para depuración, cambiar por post en produccion
+
+
+	}
+	this.onSaveFiltersResponse=function(){
 		var resp=this.getAjaxDataResponse(true);
 		console.log("onSaveColsStateResponse",resp.params);
 		if(resp){

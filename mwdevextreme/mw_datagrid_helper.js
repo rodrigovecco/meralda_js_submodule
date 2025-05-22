@@ -307,6 +307,8 @@ function mw_devextreme_datagrid_man(params){
 			this.addDataGridOn("initialized",ops['onInitialized']);
 		}
 		ops['onInitialized']=function(evnt){_this.onDataGridInitialized(evnt)};
+		
+
 	}
 	
 	
@@ -479,7 +481,16 @@ function mw_devextreme_datagrid_man(params){
 		return this.add_lookup(lu,cod);
 
 	}
-	
+	//20250521
+	this.clearFilters = function(){
+		const dg = this.get_data_grid();
+		if (!dg) {
+			console.warn("Unable to clear filters: datagrid_man not available or missing clearFilters method");
+			return false;
+		}
+		dg.clearFilter(); // ← This clears everything, including filter row inputs
+		return true;
+	};
 	//20240412
 	this.set_ds_from_array=function(list,key){
 		if(!mw_is_array(list)){
@@ -626,6 +637,11 @@ function mw_devextreme_datagrid_man(params){
 		if(!ops['onToolbarPreparing']){
 			ops['onToolbarPreparing']=function(e){_this.onToolbarPreparing(e)};	
 		}
+		if (!ops['onEditorPreparing']) {
+			ops['onEditorPreparing'] = function(e) { _this.onEditorPreparing(e); };
+			console.log("onEditorPreparing  created");
+		}
+
 		this.create_data_grid_optionsExcelExport(ops);
 		var list=this.columns.get_items_by_index();
 		ops.columns=this.get_columns_options();
@@ -637,27 +653,67 @@ function mw_devextreme_datagrid_man(params){
 		
 	}
 	
-	this.DXonExporting=function(e){
+	this.onEditorPreparing  = function(e) {
+		//console.log("onEditorPreparing",e);
+		this.onEditorPreparingFixFilterRowSelect(e);
+		
+	};
+	this.onEditorPreparingFixFilterRowSelect  = function(e) {
+		//console.log("onEditorPreparingFixFilterRowSelect",e);
+		if (e.parentType === "filterRow" && e.editorName === "dxSelectBox") {
+			e.editorOptions.onFocusIn = function(e) {
+				const input = e.event?.target;
+				
+				if (input && typeof input.select === "function") {
+					setTimeout(function() {
+						input.select();
+					}, 10); // Asegura que el input esté listo
+				}
+					
+			};
+		}
+	};
+	
+	
+	this.DXonExporting = function(e) {
 		e.component.beginUpdate();
-		var sheetName=this.params.get_param_or_def("gridoptions.export.fileName","data");
-		var fileName=this.params.get_param_or_def("gridoptions.export.fileName","data")+".xlsx";
+		
+		var sheetName = this.params.get_param_or_def("gridoptions.export.fileName", "data");
+		var fileName = sheetName + ".xlsx";
 		console.log(fileName);
-        var workbook = new ExcelJS.Workbook(); 
-        var worksheet = workbook.addWorksheet(sheetName);
-        //e.component.columnOption('ID', 'visible', true);
-        DevExpress.excelExporter.exportDataGrid({
-            component: e.component,
-            worksheet: worksheet
-        }).then(function() {
-            	workbook.xlsx.writeBuffer().then(function(buffer) {
-            	saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);
-        	});
-        }).then(function() {
-            //e.component.columnOption('ID', 'visible', false);
-            e.component.endUpdate();
-        });
 
-	}
+		var workbook = new ExcelJS.Workbook();
+		var worksheet = workbook.addWorksheet(sheetName);
+		var addColCods = this.params.get_param_or_def("addColCodsToExcel", false);
+
+		DevExpress.excelExporter.exportDataGrid({
+			component: e.component,
+			worksheet: worksheet
+		}).then(function(cellRange) {
+			if (addColCods) {
+				// 📌 Insertar fila de dataFields debajo de los encabezados
+				const columns = e.component.getVisibleColumns();
+				const codesRow = columns.map(col => col.dataField || col.name || '');
+
+				const rowIndex = cellRange.from.row + 1;
+				worksheet.insertRow(rowIndex + 1, codesRow);
+
+				// 🎨 Estilo opcional
+				const row = worksheet.getRow(rowIndex + 1);
+				row.font = { italic: true, color: { argb: 'FF666666' } };
+				row.alignment = { horizontal: 'left' };
+			}
+		})
+		.then(function() {
+			// Exportar archivo
+			return workbook.xlsx.writeBuffer().then(function(buffer) {
+				saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);
+			});
+		})
+		.then(function() {
+			e.component.endUpdate();
+		});
+	};
 	this.create_data_grid_optionsExcelExport=function(ops){
 		if(!ops['export']){
 			return;
@@ -670,7 +726,7 @@ function mw_devextreme_datagrid_man(params){
 		}
 		var _this=this;
 		ops['onExporting']=function(e){_this.DXonExporting(e)};
-		console.log("onExporting created");
+		//console.log("onExporting created");
 		/*
 		if(this.params.get_param_or_def("excelExportName",false)){
 
@@ -808,12 +864,14 @@ function mw_devextreme_datagrid_column_abs(){
 		}
 	}
 	this.onEditorPreparing=function(info){
-		//console.log("onEditorPreparingUpdateCols",info);
+		console.log("onEditorPreparing",info);
 		var fnc=this.params.get_param_if_function("onEditorPreparing");
 		if(fnc){
 			fnc(info,this);	
 		}
+		//this.onEditorPreparingFixSelectFilters(info);
 	}
+	
 	this.set_col_options_lookup_from_man=function(opts){
 		var cod=this.params.get_param_or_def("lookupFromMan.cod",false);
 		if(!cod){
