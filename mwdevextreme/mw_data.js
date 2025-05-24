@@ -210,6 +210,8 @@ function mw_devextreme_data_load_request(dataman,deferred,loadOptions){
 	this.procResponse=function(){
 		this.dataList=new Array();
 		this.totalCount=0;
+		this.summaryData = null;
+		
 		
 		if(this.procResponseOk()){
 			this.populateResponseData();
@@ -217,10 +219,12 @@ function mw_devextreme_data_load_request(dataman,deferred,loadOptions){
 		this.afterProcResponse();
 		
 		
-		return {data:this.dataList, totalCount: this.totalCount};
+		return {data:this.dataList, totalCount: this.totalCount, summary: this.summaryData};
 	}
 	this.populateResponseData=function(){
 		this.setTotalCount(this.responseData.get_param_or_def("js.totalCount",0));
+		this.summaryData = this.responseData.get_param_as_list("js.summary");
+		//todo: mapped sumary
 		var dop=this.responseData.get_param_if_object("js.dsoptim");
 		var l=this.dataList;
 		if(dop){
@@ -264,7 +268,7 @@ function mw_devextreme_data_load_request(dataman,deferred,loadOptions){
 		}
 		var response=this.procResponse();
 		if(this.loadOptions.requireTotalCount === true){
-			this.deferred.resolve({ data: response.data, totalCount: response.totalCount });
+			this.deferred.resolve({ data: response.data, totalCount: response.totalCount,summary: response.summary });
 		}else{
 			this.deferred.resolve(response.data);
         };
