@@ -404,6 +404,7 @@ function mw_devextreme_datagrid_man_rdataedit(params){
 			return false;
 		}
 		data=loader.responseData;
+		this.show_popup_notify(data.get_param_if_object("notify"));
 		if(!data.get_param_or_def("ok",false)){
 			return false;
 		}
