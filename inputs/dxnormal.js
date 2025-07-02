@@ -485,7 +485,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
     };
 
     this.set_input_value = function(val){
-		//console.log("[DX_dropDownTreeView] set_input_value", val);
+		console.log("[DX_dropDownTreeView] set_input_value", val);
 
 		// Siempre parsea a array de IDs
 		this.DXValue = this.parse_input_value(val);
@@ -502,7 +502,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
 
 	this.updateDXValue = function(){
 		if(this.dx_ctr){
-			//console.log("[DX_dropDownTreeView] updateDXValue to", this.DXValue);
+			console.log("[DX_dropDownTreeView] updateDXValue to", this.DXValue);
 			this.dx_ctr.option("value", this.DXValue);
 		}
 	};
@@ -516,6 +516,9 @@ function mw_datainput_item_DX_dropDownTreeView(options){
 
   
 	this._safe_parse_id = function(v){
+		if (typeof v === "number") {
+       	 	return v;  
+    	}
 		var n = parseInt(v, 10);
 		if (!isNaN(n) && (n + "") === v.trim()) {
 			return n;
@@ -523,14 +526,28 @@ function mw_datainput_item_DX_dropDownTreeView(options){
 		return v.trim();
 	};
 
-	this.parse_input_value = function(val){
-		if (typeof val === "string" && val.trim() !== "") {
-			return val.split(",").map((v) => this._safe_parse_id(v));
+	this.parse_input_value = function(val) {
+		//console.log("[DX_dropDownTreeView] parse_input_value", val);
+
+		if (val === null || val === undefined || val === '') {
+			return [];
 		}
-		if (Array.isArray(val)){
+
+		if (Array.isArray(val)) {
 			return val.map((v) => this._safe_parse_id(v));
 		}
-		return [];
+
+		if (typeof val === "string") {
+			val = val.trim();
+			if (val.indexOf(",") !== -1) {
+				return val.split(",").map((v) => this._safe_parse_id(v));
+			} else {
+				return [this._safe_parse_id(val)];
+			}
+		}
+
+		// Para números u otros tipos que sean un solo valor
+		return [this._safe_parse_id(val)];
 	};
 
     this.get_input_value = function(){
