@@ -900,3 +900,97 @@ function mw_datainput_item_hiddenpass(options){
 }
 
 
+function mw_datainput_item_rating(options) {
+    mw_datainput_item_base.call(this);
+
+    this.init(options);
+
+    this.create_input_elem = function() {
+        var _this = this;
+
+        // Contenedor principal
+        var c = document.createElement("div");
+        c.className = "mw-rating-input-container";
+
+        // Input oculto para el valor
+        this.hiddenInput = document.createElement("input");
+        this.hiddenInput.type = "hidden";
+        this.set_def_input_atts(this.hiddenInput);
+        c.appendChild(this.hiddenInput);
+
+        // Contenedor para las estrellas
+        this.ratingDiv = document.createElement("div");
+        c.appendChild(this.ratingDiv);
+
+        // Instanciar MWRatingRenderer
+        this.ratingRenderer = new MWRatingRenderer({
+            max: this.options.get_param_or_def("max", 5),
+            value: this.options.get_param_or_def("value", 0),
+            readonly: this.options.get_param_or_def("state.readOnly", false),
+            onChange: function(val) {
+                _this.hiddenInput.value = val;
+                _this.on_change();
+            }
+        });
+
+        this.ratingRenderer.appendTo(this.ratingDiv);
+
+        // Guardar contenedor principal
+        this.ratingContainer = c;
+
+        // Asignar valor inicial al input hidden
+        this.hiddenInput.value = this.ratingRenderer.getValue();
+
+        // Aplicar estado inicial
+        this.update_input_atts();
+
+        return c;
+    };
+
+    this.set_input_value = function(val) {
+        if (this.ratingRenderer) {
+            this.ratingRenderer.setValue(val);
+        }
+        if (this.hiddenInput) {
+            this.hiddenInput.value = val;
+        }
+    };
+
+    this.get_input_value = function() {
+        var v=0;
+		if (this.hiddenInput) {
+           	v=this.hiddenInput.value;
+        }else if (this.ratingRenderer) {
+			v = this.ratingRenderer.getValue();
+		}
+		v=mw_getInt(v);
+		if (v < 0) {
+			v = 0;
+		}
+		if (v > this.options.get_param_or_def("max", 5)) {
+			v = this.options.get_param_or_def("max", 5);
+		}
+		return v;
+       
+       
+    };
+
+    this.update_input_atts = function() {
+        var readOnly = this.options.get_param_or_def("state.readOnly", false);
+        if (this.ratingRenderer) {
+            this.ratingRenderer.setReadonly(readOnly);
+        }
+        if (this.hiddenInput) {
+            $(this.hiddenInput).prop('readonly', readOnly);
+            $(this.hiddenInput).prop('disabled', this.options.get_param_or_def("state.disabled", false));
+            $(this.hiddenInput).prop('required', this.options.get_param_or_def("state.required", false));
+        }
+    };
+
+    this.disabledOnReadOnly = function() {
+        return true;
+    };
+
+}
+
+
