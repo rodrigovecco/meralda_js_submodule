@@ -1086,6 +1086,10 @@ function mw_datainput_item_abs(){
 		if(p){
 			c.placeholder=p;
 		}
+		p=this.options.get_param_or_def("maxlength",false);
+		if(p){
+			c.setAttribute("maxlength",p);
+		}
 		this.set_def_input_atts(c);
 		this.create_input_elem_set_other_params(c);
 		//this.setTooltipFromParams(c);
