@@ -4,6 +4,26 @@ function mw_ui_grid(info){
 	this.afterDataGridManSetOnLoaderCus=function(){
 		
 	}
+	this.formatMinutes=function(minutes){
+		if (minutes === null || isNaN(minutes)) {
+			return "";
+		}
+		return this.formatSeconds(minutes * 60);
+	}
+	this.formatSeconds=function(seconds){
+		if (seconds === null || isNaN(seconds)) {
+			return "";
+		}
+	
+		let days = Math.floor(seconds / 86400);
+		let remainingSeconds = seconds % 86400;
+	
+		let date = new Date(0);
+		date.setSeconds(remainingSeconds);
+		let timeString = date.toISOString().substr(11, 8);
+	
+		return days > 0 ? `${days} D ${timeString}` : timeString;
+	}
 	this.afterDataGridManSetOnLoaderNative=function(){
 		if(this.onGridOptionChangedEnabled()){
 			var _this=this;
