@@ -915,10 +915,12 @@ function mw_datainput_item_abs(){
 		}
 	}
 	this.get_input_id=function(){
-		return false;
+		return this.get_input_name();
+		//return false;
 	}
 	this.get_input_name_for_child=function(cod){
 		if(!cod){
+			console.log("No cod param in get_input_name_for_child");
 			return false;	
 		}
 		var n=this.get_input_name();
@@ -945,8 +947,8 @@ function mw_datainput_item_abs(){
 			}
 				
 		}
-
-		return this.get_input_id();
+		
+		return this.cod;
 	}
 	this.set_def_input_atts=function(input){
 		var p;
@@ -1112,7 +1114,7 @@ function mw_datainput_item_abs(){
 			}
 			p=this.get_input_id();
 			if(p){
-				lbl.htmlFor =id;	
+				lbl.htmlFor =p;	
 			}
 			return lbl;
 			//c.appendChild(lbl);

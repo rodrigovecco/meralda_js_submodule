@@ -196,7 +196,7 @@ function mw_datainput_dx(options){
 			lbl.innerHTML=p;
 			p=this.get_input_id();
 			if(p){
-				lbl.htmlFor =id;	
+				lbl.htmlFor =p;	
 			}
 			return lbl;
 			
