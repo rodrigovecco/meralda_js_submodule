@@ -1472,6 +1472,14 @@ function mw_datainput_item_file(options){
 		
 		this.update_input_atts(input);
 	}
+	this.getFile=function(){
+		if(this.input_elem){
+			if(this.input_elem.files){
+				return this.input_elem.files[0];
+			}
+		}
+		return null;
+	}
 	
 	this.init(options);
 }
