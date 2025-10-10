@@ -301,6 +301,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
     this.getDXOptions = function(){
         var _this = this;
         var params = this.options.get_param_if_object("DXOptions", true);
+		//console.log("[DX_dropDownTreeView] Original DXOptions", params);
 
         if(!params.valueExpr) params.valueExpr = "id";
         if(!params.displayExpr) params.displayExpr = "name";
@@ -323,6 +324,9 @@ function mw_datainput_item_DX_dropDownTreeView(options){
                 }
             });
         }
+		if(!params.dataSource){
+			params.dataSource = [];
+		}
         flatten(params.dataSource);
         //console.log("[DX_dropDownTreeView] Flattened DataSource", flatDataSource);
 
@@ -445,7 +449,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
     };
 
     this.onDXValueChanged = function(e){
-        //console.log("[DX_dropDownTreeView] onDXValueChanged", e);
+        console.log("[DX_dropDownTreeView] onDXValueChanged", e);
         if(!e) return;
 
         var filtered = e.value;
@@ -463,11 +467,12 @@ function mw_datainput_item_DX_dropDownTreeView(options){
         }
 
         this.DXValue = filtered;
-        //console.log("[DX_dropDownTreeView] Updated DXValue", this.DXValue);
+        console.log("[DX_dropDownTreeView] Updated DXValue", this.DXValue);
 
         if(this.input_elem){
             this.input_elem.value = this.format_input_value(this.DXValue);
-            //console.log("[DX_dropDownTreeView] Updated hidden input", this.input_elem.value);
+			
+            console.log("[DX_dropDownTreeView] Updated hidden input", this.input_elem.value);
         }
 
         this.on_change();
@@ -503,6 +508,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
 	this.updateDXValue = function(){
 		if(this.dx_ctr){
 			console.log("[DX_dropDownTreeView] updateDXValue to", this.DXValue);
+			//var nvalue=this.parse_input_value(this.DXValue);
 			this.dx_ctr.option("value", this.DXValue);
 		}
 	};
