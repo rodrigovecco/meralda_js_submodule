@@ -301,7 +301,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
     this.getDXOptions = function(){
         var _this = this;
         var params = this.options.get_param_if_object("DXOptions", true);
-		//console.log("[DX_dropDownTreeView] Original DXOptions", params);
+		console.log("[DX_dropDownTreeView] Original DXOptions", params);
 
         if(!params.valueExpr) params.valueExpr = "id";
         if(!params.displayExpr) params.displayExpr = "name";

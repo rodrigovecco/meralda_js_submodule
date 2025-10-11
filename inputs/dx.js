@@ -76,9 +76,12 @@ function mw_datainput_dx(options){
 		
 	}
 	this.onDXValueChanged=function(e){
-		
+		console.log("DX Value changed:",e);
 		if(e){
-			this.DXValue=e.value;	
+			this.DXValue=e.value;
+			if(this.input_elem){
+				this.input_elem.value=this.format_input_value(e.value)+"";	
+			}
 		}
 		this.on_change();
 	}
@@ -128,6 +131,12 @@ function mw_datainput_dx(options){
 			return true;	
 		}
 	}
+	this.create_input_elem = function() {
+		var c = document.createElement("input");
+		c.type = "hidden";
+		this.set_def_input_atts(c);
+		return c;
+	};
 	
 	
 	this.create_container=function(){
@@ -182,6 +191,10 @@ function mw_datainput_dx(options){
 				c.appendChild(inputelem);	
 			}
 				
+		}
+		this.input_elem=this.create_input_elem();
+		if(this.input_elem){
+			c.appendChild(this.input_elem);	
 		}
 		
 		
@@ -317,5 +330,161 @@ function mw_datainput_dx_selectBoxRemote(options){
 
 
 
+}
+function mw_datainput_dx_tagBox(options){
+	mw_datainput_dx.call(this, options);
+	
+	this.createDXctr = function(container, ops){
+		$($(container)).dxTagBox(ops);
+		this.DXctr = $($(container)).dxTagBox('instance');
+	};
+
+	this.autoCreateItems = function(){
+		var list = this.options.get_param_as_list("optionslist");
+		if(!list){
+			list = [];
+		}
+		return list.map(function(item){
+			// Fuerza que el valueExpr (cod) sea string
+			if(item && typeof item.cod !== "undefined"){
+				item.cod = String(item.cod);
+			}
+			return item;
+		});
+	};
+
+	this.getDXOptionsMore = function(params){
+		params.searchEnabled = true;
+		params.showSelectionControls = true;
+		params.hideSelectedItems = true;
+
+		if(!params["displayExpr"]){
+			params["displayExpr"] = "name";
+		}
+		if(!params["valueExpr"]){
+			params["valueExpr"] = "cod";
+		}
+
+		// 🔹 Unificar tipo en dataSource (remoto o local)
+		if(this.options.get_param_if_object("dataSourceMan")){
+			if(!params["dataSource"]){
+				params["dataSource"] = this.getDataSource();
+			}
+		} else if((!params["dataSource"]) && (!params["items"])){
+			params["items"] = this.autoCreateItems();
+		}
+	};
+
+	// ==== SOPORTE REMOTO ====
+	this.getDataStore = function(){
+		if(!this.DataStore){
+			this.DataStore = this.getDataSourceMan().getDataStore();
+		}
+		return this.DataStore;
+	};
+
+	this.getDataSourceMan = function(){
+		if(this.dataSourceMan){
+			return this.dataSourceMan;
+		}
+		this.createDataSourceMan();
+		return this.dataSourceMan;
+	};
+
+	this.createDataSourceMan = function(){
+		var params = this.options.get_param_if_object("dataSourceMan", true);
+		if(mw_is_function(params["isDSMan"])){
+			this.dataSourceMan = params;
+		}else{
+			this.dataSourceMan = new mw_devextreme_data(params);
+		}
+		return this.dataSourceMan;
+	};
+
+	this.getDataSource = function(){
+		if(!this.dataSource){
+			this.dataSource = this.getDataSourceMan().getDataSource();
+		}
+		return this.dataSource;
+	};
+
+	// ==== MÉTODOS DE UTILIDAD ====
+	this.addAndSelectItem = function(newItemData, callback){
+		var _this = this;
+		var dsMan = this.getDataSourceMan();
+		if(dsMan){
+			dsMan.add2cache(String(newItemData.id), newItemData);
+			console.log("Added to cache:", String(newItemData.id), newItemData);
+		}
+		var dataStore = this.getDataStore();
+		dataStore.insert(newItemData).done(function(insertedItem){
+			console.log("Inserted Item:", insertedItem);
+			_this.getDataSource().load().done(function(){
+				var current = _this.DXctr.option("value") || [];
+				current.push(String(insertedItem.id));
+				_this.set_input_value(current);
+				console.log("Updated TagBox values:", current);
+				if(callback && typeof callback === "function"){
+					callback(insertedItem);
+				}
+			});
+		}).fail(function(error){
+			console.error("Error adding item:", error);
+		});
+	};
+
+	this.getSelectedItemsData = function(){
+		if(this.DXctr){
+			return this.DXctr.option("selectedItems");
+		}
+		return null;
+	};
+
+	// ==== HANDLERS Y VALUE ====
+	this.set_input_value = function(val){
+		// 🔹 Normalizar entrada a array de strings
+		if(typeof val === "string"){
+			val = val.split(",")
+				.map(v => v.trim())
+				.filter(v => v !== "");
+		} else if(typeof val === "number"){
+			val = [String(val)];
+		} else if(val == null){
+			val = [];
+		} else if(!Array.isArray(val)){
+			val = [String(val)];
+		} else {
+			val = val.map(v => String(v));
+		}
+
+		this.DXValue = val;
+
+		if(this.DXctr){
+			this.DXctr.option("value", val);
+		}
+
+		if(this.input_elem){
+			this.input_elem.value = val.join(",") + "";
+		} else {
+			console.warn("⚠️ No input_elem in TagBox");
+		}
+	};
+
+	// 🔹 Asegura consistencia también al cambiar desde UI
+	this.onDXValueChanged = function(e){
+		if(!e) return;
+		if(Array.isArray(e.value)){
+			e.value = e.value.map(v => String(v));
+		}
+
+		this.DXValue = e.value || [];
+
+		if(this.input_elem){
+			this.input_elem.value = this.DXValue.join(",") + "";
+		}
+		console.log("DX Value changed:", this.DXValue, "Prev:", e.previousValue);
+
+		this.on_change();
+	};
 }
 
