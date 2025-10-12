@@ -36,7 +36,11 @@ function mwuihelper_ajaxelem(){
 		if(!this.dom_body){
 			return false;	
 		}
-		this.dom_body.innerHTML="<div class='mw_loading_placeholder'><div class='mw_loading_placeholder_in'><div class='glyphicon glyphicon-refresh glyphicon-refresh-animate '></div></div></div>";
+		
+		
+		
+		this.dom_body.innerHTML="<div class='mw_loading_placeholder'><div class='mw_loading_placeholder_in'><div class='fa fa-sync fa-spin '></div></div></div>";
+		
 		return true;
 		
 			

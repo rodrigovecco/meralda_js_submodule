@@ -675,6 +675,80 @@ function mw_devextreme_datagrid_man(params){
 	};
 	
 	
+	
+	
+	this.DXonExportingXXXX = function(e) {
+		const _this = this;
+		const sheetName = this.params.get_param_or_def("gridoptions.export.fileName", "data");
+		const fileName = sheetName + ".xlsx";
+		const useBatchExport = this.params.get_param_or_def("exportBatchMode", true);
+		//const batchSize = this.params.get_param_or_def("batchSize", 1000);
+
+		e.component.beginUpdate();
+
+		// ✅ Si hay dataSourceMan y modo batch habilitado
+		if (useBatchExport && this.dataSourceMan && typeof this.dataSourceMan.loadAllBatched === "function") {
+			console.log("🔁 Exporting datagrid using loadAllBatched()...");
+
+			// Mostrar loading visual opcional
+			this.beginCustomLoading();
+
+			//this.dataSourceMan.params.set_prop("batchSize", batchSize);
+			this.dataSourceMan.loadAllBatched().then(function(allData) {
+				console.log("✅ Loaded", allData.length, "records for Excel export");
+
+				const workbook = new ExcelJS.Workbook();
+				const worksheet = workbook.addWorksheet(sheetName);
+
+				// 🔹 Crear grid temporal con todos los datos locales
+				const gridOptions = e.component.option();
+				gridOptions.dataSource = new DevExpress.data.ArrayStore({
+					data: allData,
+					key: _this.dataSourceMan.getDataKey()
+				});
+
+				DevExpress.excelExporter.exportDataGrid({
+					component: $("<div>").dxDataGrid(gridOptions).dxDataGrid("instance"),
+					worksheet: worksheet
+				})
+				.then(() => workbook.xlsx.writeBuffer())
+				.then(buffer => {
+					saveAs(new Blob([buffer], { type: "application/octet-stream" }), fileName);
+				})
+				.finally(() => {
+					_this.endCustomLoading();
+					console.log("🏁 Export completed");
+					e.component.endUpdate();
+				});
+			}).catch(function(err) {
+				console.error("❌ Error loading batched data:", err);
+				_this.endCustomLoading();
+				e.component.endUpdate();
+			});
+
+			e.cancel = true; // evita la exportación estándar
+			return;
+		}
+
+		// 🧾 Exportación normal (sin batch)
+		console.log("⚙️ Exporting current view only...");
+		const workbook = new ExcelJS.Workbook();
+		const worksheet = workbook.addWorksheet(sheetName);
+
+		DevExpress.excelExporter.exportDataGrid({
+			component: e.component,
+			worksheet: worksheet
+		})
+		.then(() => workbook.xlsx.writeBuffer())
+		.then(buffer => {
+			saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);
+		})
+		.finally(() => e.component.endUpdate());
+	};
+
+	
+	
+	
 	this.DXonExporting = function(e) {
 		e.component.beginUpdate();
 		
