@@ -87,7 +87,7 @@ function mw_devextreme_data(params){
 	}
 	this.DSload = function(loadOptions) {
 		var deferred = $.Deferred();
-		//console.log("🟢 DSload called", loadOptions);
+		console.log("🟢 DSload called", loadOptions);
 
 		// 🔍 Detect if DevExtreme requests ALL data (e.g., Excel export or full reload)
 		if (loadOptions && loadOptions.isLoadingAll) {
