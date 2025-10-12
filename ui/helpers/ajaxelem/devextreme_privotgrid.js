@@ -130,7 +130,7 @@ mwuihelper_ajaxelem_devextreme_pivotgrid.prototype=new mwuihelper_ajaxelem();
 
 function mwmod_sctrl_reports_pivotgrid_lookup(cod,options,man){
 	this.cod=cod;
-	console.log("mwmod_sctrl_reports_pivotgrid_lookup",cod,options,man);
+	//console.log("mwmod_sctrl_reports_pivotgrid_lookup",cod,options,man);
 	this.options=new mw_obj();
 	this.options.set_params(options);
 	this.items=new mw_objcol();
