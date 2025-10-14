@@ -1,4 +1,5 @@
-function mwuihelper_ajaxelem_devextreme_datagrid(){
+function mwuihelper_ajaxelem_devextreme_datagrid(params){
+	mwuihelper_ajaxelem.call(this,params);
 	this.afterDataGridManSet=function(){
 			
 	}
@@ -33,7 +34,7 @@ function mwuihelper_ajaxelem_devextreme_datagrid(){
 	
 	
 }
-mwuihelper_ajaxelem_devextreme_datagrid.prototype=new mwuihelper_ajaxelem();
+//mwuihelper_ajaxelem_devextreme_datagrid.prototype=new mwuihelper_ajaxelem();
 
 function mwuihelper_ajaxelem_devextreme_datagrid_refresher(){
 	this.afterDataGridManSet=function(){

@@ -559,6 +559,7 @@ function mw_devextreme_datagrid_man(params){
 		var list=this.params.get_param_as_list("columns");	
 		var _this=this;
 		if(list){
+			///console.log("init_from_params columns",list);
 			mw_objcol_array_process(list,function(e){_this.add_colum(e)});	
 		}
 		var doptim=this.params.get_param_if_object("additionaldataoptim");
@@ -801,6 +802,9 @@ function mw_devextreme_datagrid_man(params){
 		return r;
 	}
 	this.add_colum=function(col){
+		if(!col){
+			return false;	
+		}
 		var cod=col.cod;
 		this.columns.add_item(cod,col);
 		col.setDGMan(this);

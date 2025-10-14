@@ -1,4 +1,43 @@
-function mwuihelper_ajaxelem(){
+function mwuihelper_ajaxelem(params){
+	this.params=new mw_obj();
+	if(params){
+		this.params.set_params(params);
+	}
+	
+	this.initFromParams=function(){
+		if(!this.params){
+			return false;	
+		}
+		var url =this.params.get_param_if_string("url");
+		if(url){
+			this.url=url;
+		}
+		if(!this.dom_container){
+			var container_id=this.params.get_param_if_string("container_id");
+			if(container_id){
+				this.dom_container=document.getElementById(container_id);
+			}
+		}
+		if(!this.dom_body){
+			var body_id=this.params.get_param_if_string("body_id");
+			if(body_id){
+				this.dom_body=document.getElementById(body_id);
+			}
+		}
+		if(this.dom_container && !this.dom_body){
+			this.dom_body=document.createElement("div");
+			this.dom_container.appendChild(this.dom_body);
+		}
+		this.set_dom_elems(this.dom_body,this.dom_container);
+		this.setAllowJSResponse(this.params.get_param_or_def("allow_js_response",true));
+		this.afterinitFromParams();
+	}
+	this.afterinitFromParams=function(){
+		this.clearBodyAndAddLoading();
+		if(this.url){
+			this.loadCont(this.url);	
+		}
+	}
 	this.set_dom_elems=function(bodyelem,container){
 		this.dom_body=bodyelem;
 		this.dom_container=container;
