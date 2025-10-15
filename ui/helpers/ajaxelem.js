@@ -187,3 +187,24 @@ function mwuihelper_ajaxelem(params){
 	
 }
 
+function mwuihelper_ajaxelem_auto(params){
+	mwuihelper_ajaxelem.call(this,params);
+	this.onLoadedDataOK=function(){
+		
+		var cont="";
+		if(this.loadedData){
+			cont=this.loadedData.get_param_or_def("htmlcont",cont);
+		}
+		mw_dom_set_cont(this.dom_body,cont);
+		if(this.loadedData){
+			var fnc=this.loadedData.get_param_if_function("jsresponse.init");
+			if(fnc){
+				fnc.call(this);
+			}
+		}
+			
+	}
+	
+	
+	
+}
