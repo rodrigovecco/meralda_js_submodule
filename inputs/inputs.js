@@ -1648,6 +1648,10 @@ function mw_datainput_item_select(options){
 		
 			
 	}
+	this.addOptionsOnFly=function(options){
+		var _this=this;
+		mw_objcol_array_process(options,function(data,index){_this.add_option_on_fly(data.cod,data.name)});	
+	}
 	this.add_option_on_fly=function(cod,option){
 		var op=this.add_option(cod,option);
 		if(!op){

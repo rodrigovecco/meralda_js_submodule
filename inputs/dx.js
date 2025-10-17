@@ -250,9 +250,21 @@ function mw_datainput_dx_selectBox(options){
 		}
 		return null;
 	}
-
-
-
+	this.clear_options=function(){
+		if(this.DXctr){
+			this.DXctr.option("items",[]);
+			this.DXctr.option("value",null);
+			this.DXctr.repaint();
+		}
+	}
+	this.addOptionsOnFly=function(options){
+		console.log("addOptionsOnFly",options);
+		if(this.DXctr){
+			this.DXctr.option("items",options);
+			this.DXctr.option("value",null);
+			this.DXctr.repaint();
+		}
+	}
 }
 
 function mw_datainput_dx_selectBoxRemote(options){
