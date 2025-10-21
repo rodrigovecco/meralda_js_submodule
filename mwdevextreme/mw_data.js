@@ -92,7 +92,7 @@ function mw_devextreme_data(params){
 		// 🔍 Detect if DevExtreme requests ALL data (e.g., Excel export or full reload)
 		if (loadOptions && loadOptions.isLoadingAll) {
 			console.log("⚙️ Detected isLoadingAll=true → using loadAllBatched()");
-			this.loadAllBatched()
+			this.loadAllBatched(loadOptions)
 				.then(function(allData) {
 					console.log("✅ Batch load completed, total:", allData.length);
 					deferred.resolve(allData);
@@ -169,10 +169,12 @@ function mw_devextreme_data(params){
 		var loopCount = 0;
 
 		// safely clone base options (filters, etc.)
-		var baseOpts = mw_is_object(loadOptions)
+		// Clona opciones iniciales (filtros/sorts/busquedas/etc.)
+		var baseOpts = (loadOptions && typeof loadOptions === "object")
 			? JSON.parse(JSON.stringify(loadOptions))
 			: {};
-
+		// Evita re-entrar al modo "all"
+		delete baseOpts.isLoadingAll;
 		function loadNextBatch() {
 			if (done) {
 				console.log("✅ All batches loaded. Total:", allData.length);
