@@ -386,6 +386,7 @@ function mw_devextreme_data_load_request(dataman,deferred,loadOptions){
 		return {data:this.dataList, totalCount: this.totalCount, summary: this.summaryData};
 	}
 	this.populateResponseData=function(){
+		//console.log("populateResponseData",this.responseData.params);
 		this.setTotalCount(this.responseData.get_param_or_def("js.totalCount",0));
 		this.summaryData = this.responseData.get_param_as_list("js.summary");
 		//todo: mapped sumary
@@ -394,6 +395,8 @@ function mw_devextreme_data_load_request(dataman,deferred,loadOptions){
 		if(dop){
 			mw_objcol_array_process(dop.get_all_data(),function(o){l.push(o)});	
 		}
+
+		console.log("✅ Data loaded", { totalCount: this.totalCount, records: this.dataList.length });
 		
 
 	}
