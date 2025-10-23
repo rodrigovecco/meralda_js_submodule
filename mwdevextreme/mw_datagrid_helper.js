@@ -580,7 +580,30 @@ function mw_devextreme_datagrid_man(params){
 		o.set_params(this.params.get_param_if_object("gridoptions",true));
 		return o;
 	}
-	
+	this.getBoolColsCods = function() {
+		const r = [];
+		const grid = this.get_data_grid();
+		if (!grid) return r;
+		const cols = grid.option("columns") || [];
+		for (const col of cols) {
+			if (col && (col.dataType === "boolean" || col.dataType === "bool")) {
+				if (col.dataField) r.push(col.dataField);
+			}
+		}
+		return r;
+	};
+	this.getDateColsCods = function() {
+		const r = [];
+		const grid = this.get_data_grid();
+		if (!grid) return r;
+		const cols = grid.option("columns") || [];
+		for (const col of cols) {
+			if (col && col.dataField && (col.dataType === "date" || col.dataType === "datetime")) {
+				r.push(col.dataField);
+			}
+		}
+		return r;
+	};
 	this.get_cols_copy=function(){
 		var cols=new mw_objcol();
 		var list=this.columns.get_items_by_index();
