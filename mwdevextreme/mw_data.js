@@ -329,6 +329,7 @@ function mw_devextreme_data(params){
 		var ops=this.params.get_param_if_object("dataSourceCfg",true);		
 		ops.store=s;
 		this.dataSource= new DevExpress.data.DataSource(ops);
+		//console.log("Created DataSource",ops);
 		return this.dataSource;  	
 	}
 	

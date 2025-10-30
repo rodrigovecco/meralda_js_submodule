@@ -27,6 +27,7 @@ function mwuihelper_ajaxelem_devextreme_scheduler(params) {
             console.log("❌ No scheduleroptions found in response");
             return this.onLoadedDataFail();
         }
+        this.beforeCreateScheduler();
 
 
         // === 2️⃣ Extract DataSource manager (mw_devextreme_data)
@@ -51,6 +52,10 @@ function mwuihelper_ajaxelem_devextreme_scheduler(params) {
         // === 4️⃣ Create the DevExtreme Scheduler
         this.createScheduler();
     };
+    this.beforeCreateScheduler = function() {
+        // Hook for custom pre-processing before creating the scheduler
+        console.log("ℹ️ Preparing to create Scheduler with options:", this.schedulerOptions);
+    }
 
     /**
      * Builds and renders the DevExtreme Scheduler on the target DOM element.
