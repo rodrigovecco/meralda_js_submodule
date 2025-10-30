@@ -121,23 +121,7 @@ function mw_devextreme_datagrid_man(params){
 	};
 	
 	
-	/*
-	this.getColCodeFromOptionsChangeData=function(e){
-		if (typeof e.fullName === "string" && e.fullName.startsWith("columns[")) {
-            const match = e.fullName.match(/^columns\[(\d+)\]/);
-            
-            if (match) {
-                const columnIndex = parseInt(match[1], 10);
-                console.log("Changed Column Index:", columnIndex);
-                console.log("Changed Property:", e.name);
-                console.log("New Value:", e.value);
-            }
-        }
-
-	}
-		*/
-
-
+	
 
 
 
@@ -510,6 +494,24 @@ function mw_devextreme_datagrid_man(params){
 		return true;
 		
 	}
+	this.set_ds_from_array_and_refresh=function(list,key){
+		if(!this.set_ds_from_array(list,key)){
+			return false;
+		}
+		this.beginCustomLoading();
+		var new_options={};
+		new_options.dataSource=this.ds_cfg;	
+		
+		var dg=this.get_data_grid();
+		if(!dg){
+			return false;
+		}
+		dg.option(new_options);
+		
+		dg.refresh();
+		this.endCustomLoading();
+		return true;
+	}
 	//20240412
 	this.set_ds_from_optim=function(doptim){
 
@@ -578,7 +580,30 @@ function mw_devextreme_datagrid_man(params){
 		o.set_params(this.params.get_param_if_object("gridoptions",true));
 		return o;
 	}
-	
+	this.getBoolColsCods = function() {
+		const r = [];
+		const grid = this.get_data_grid();
+		if (!grid) return r;
+		const cols = grid.option("columns") || [];
+		for (const col of cols) {
+			if (col && (col.dataType === "boolean" || col.dataType === "bool")) {
+				if (col.dataField) r.push(col.dataField);
+			}
+		}
+		return r;
+	};
+	this.getDateColsCods = function() {
+		const r = [];
+		const grid = this.get_data_grid();
+		if (!grid) return r;
+		const cols = grid.option("columns") || [];
+		for (const col of cols) {
+			if (col && col.dataField && (col.dataType === "date" || col.dataType === "datetime")) {
+				r.push(col.dataField);
+			}
+		}
+		return r;
+	};
 	this.get_cols_copy=function(){
 		var cols=new mw_objcol();
 		var list=this.columns.get_items_by_index();
@@ -682,6 +707,24 @@ function mw_devextreme_datagrid_man(params){
 
 	
 	
+	this.getHeaderRowCount=function(grid){
+		if(!grid){
+			grid=this.get_data_grid();
+		}
+		let level = 0;
+		while (true) {
+			const cols = grid.getVisibleColumns(level);
+			
+			if (!cols || cols.length === 0) break;
+			level++;
+		}
+		
+		if (grid.option("filterRow.visible")) {
+			level = Math.max(1, level - 1);
+		}
+		return level || 1;
+	};
+	
 	
 	this.DXonExporting = function(e) {
 		e.component.beginUpdate();
@@ -689,6 +732,7 @@ function mw_devextreme_datagrid_man(params){
 		var sheetName = this.params.get_param_or_def("gridoptions.export.fileName", "data");
 		var fileName = sheetName + ".xlsx";
 		console.log(fileName);
+		var _this=this;
 
 		var workbook = new ExcelJS.Workbook();
 		var worksheet = workbook.addWorksheet(sheetName);
@@ -699,17 +743,14 @@ function mw_devextreme_datagrid_man(params){
 			worksheet: worksheet
 		}).then(function(cellRange) {
 			if (addColCods) {
-				// 📌 Insertar fila de dataFields debajo de los encabezados
-				const columns = e.component.getVisibleColumns();
-				const codesRow = columns.map(col => col.dataField || col.name || '');
-
-				const rowIndex = cellRange.from.row + 1;
-				worksheet.insertRow(rowIndex + 1, codesRow);
-
-				// 🎨 Estilo opcional
-				const row = worksheet.getRow(rowIndex + 1);
+				const headerCount = _this.getHeaderRowCount(e.component);
+				const insertAt = cellRange.from.row + headerCount;
+				const codesRow = e.component.getVisibleColumns().map(col => col.dataField || col.name || '');
+				worksheet.insertRow(insertAt, codesRow);
+				const row = worksheet.getRow(insertAt);
 				row.font = { italic: true, color: { argb: 'FF666666' } };
 				row.alignment = { horizontal: 'left' };
+				row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F5F5' } };
 			}
 		})
 		.then(function() {
