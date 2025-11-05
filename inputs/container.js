@@ -133,11 +133,11 @@ function mw_datainput_item_group_btGridWithTitle(options){
 		}
 		var p_container=this.create_panel_container();
 		
-		container=this.childrenContainer;
+		var container=this.childrenContainer;
 		outcontainer.appendChild(p_container);
 		btGrid.append2Container(container);
-		this.container=btGrid.get_container();
-		
+		//this.container=btGrid.get_container();
+		this.container=p_container;
 		if(!this.sub_items_list){
 			return false;	
 		}

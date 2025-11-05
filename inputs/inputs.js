@@ -529,6 +529,9 @@ function mw_datainput_item_abs(){
 		}
 		
 	}
+	this.setOnChange=function(fnc){
+		return this.add_on_change_event("onchange",fnc);
+	}
 	this.add_on_change_event=function(cod,eventman){
 		if(!this.on_change_events){
 			this.on_change_events=new mw_objcol();	

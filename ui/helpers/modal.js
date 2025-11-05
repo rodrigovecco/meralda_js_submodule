@@ -263,6 +263,7 @@ function mwuihelper_modal_populator(params){
 }
 function mwuihelper_modal_populator_yes_no(params){
 	this.params=new mw_obj();
+	this.params.set_params(params);
 	this.body_input_data=new mw_obj();
 	this.actions=new mw_objcol();
 	this.noClick=function(){

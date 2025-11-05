@@ -163,6 +163,7 @@ function mw_ui(info){
 			this.timeoutHidePopUpMsg=setTimeout(function(){_this.hide_popup_msg()},3000);
 		}
 	}
+	
 	this.showNotifyModal=function(params){
 		var d=this.getNotifyModalDialog(params);
 		if(!d){
@@ -172,6 +173,30 @@ function mw_ui(info){
 		return d;
 			
 	}
+	this.show_popup_confirm = function (message,title ,onConfirm, onCancel, type) {
+		if(!type){
+			type="warning";	
+		}
+		var modalPop = new mwuihelper_modal_populator_yes_no({
+			title: title,
+			body_cont: message,
+			type: type
+		});
+
+
+		modalPop.init_dafault();
+		
+		if(mw_is_function(onConfirm)){
+			modalPop.afterYesClick = onConfirm;
+		}
+		if(mw_is_function(onCancel)){
+			modalPop.afterNoClick  = onCancel;
+		}
+		var m=this.getNotifyModal();		
+		modalPop.show(m);
+
+		return modalPop;
+	};
 	this.getNotifyModalDialog=function(params){
 		if(!params){
 			return false;	
