@@ -1053,8 +1053,7 @@ function mw_xml2obj_item(xmlNode,allowJsCode){
 			}
     	}
 		return r;
-		
-		
+			
 	}else{
 		if(xmlNode.firstChild){
 			var r;
@@ -1096,6 +1095,12 @@ function mw_xml2obj_item(xmlNode,allowJsCode){
 					if(typeof(obj=="object")){
 						return obj;	
 					}
+				}
+				return {};
+			}
+			if(dtype==("json")){
+				if(typeof(xmlNode.firstChild.data=="string")){
+					return JSON.parse(xmlNode.firstChild.data);
 				}
 				return {};
 			}
