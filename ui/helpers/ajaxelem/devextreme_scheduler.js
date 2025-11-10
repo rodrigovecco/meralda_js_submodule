@@ -77,6 +77,12 @@ function mwuihelper_ajaxelem_devextreme_scheduler(params) {
         $(this.dom_body).dxScheduler(this.schedulerOptions);
 
         console.log("✅ Scheduler initialized successfully");
+        
+        // Hook for custom post-processing after creating the scheduler
+        if(typeof this.afterCreateScheduler === "function"){
+            this.afterCreateScheduler();
+        }
+        
         return true;
     };
 }
