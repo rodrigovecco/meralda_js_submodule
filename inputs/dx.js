@@ -243,6 +243,7 @@ function mw_datainput_dx_selectBox(options){
 			params["displayExpr"]="name";
 			params["valueExpr"]="cod";
 		}
+		
 	}
 	this.getSelectedItemData=function(){
 		if(this.DXctr){
@@ -255,14 +256,19 @@ function mw_datainput_dx_selectBox(options){
 			this.DXctr.option("items",[]);
 			this.DXctr.option("value",null);
 			this.DXctr.repaint();
+			//console.log("Options cleared");
 		}
 	}
 	this.addOptionsOnFly=function(options){
-		console.log("addOptionsOnFly",options);
+		//console.log("addOptionsOnFly",options);
+		
 		if(this.DXctr){
 			this.DXctr.option("items",options);
 			this.DXctr.option("value",null);
 			this.DXctr.repaint();
+			//console.log("Options added on fly",options);
+		}else{
+			//console.warn("⚠️ DX SelectBox not initialized yet");
 		}
 	}
 }

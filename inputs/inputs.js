@@ -315,12 +315,22 @@ function mw_datainput_item_abs(){
 		
 		var e=document.createElement("p");
 		e.className="help-block";
-		e.innerHTML=n;
+		if(typeof(n)=="string"){
+			e.innerHTML=n;
+		}
 		if(this.frm_group_elem){
 			this.frm_group_elem.appendChild(e);
 		}
+		this.notesContainer=e;
 		return e;
 		
+	}
+	this.getNotesContainer=function(){
+		if(!this.notesContainer){
+			console.log("⚠️ Notes container not created. Param 'notes' may be missing.");
+			return false;
+		}
+		return this.notesContainer;
 	}
 	
 	
