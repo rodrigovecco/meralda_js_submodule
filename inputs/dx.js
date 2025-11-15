@@ -76,7 +76,7 @@ function mw_datainput_dx(options){
 		
 	}
 	this.onDXValueChanged=function(e){
-		console.log("DX Value changed:",e);
+		//console.log("DX Value changed:",e);
 		if(e){
 			this.DXValue=e.value;
 			if(this.input_elem){
