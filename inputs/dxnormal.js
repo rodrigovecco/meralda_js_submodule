@@ -431,7 +431,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
                     keys = selectedNodes.map((n) => n.key);
                 }
                 if (!_this.arraysEqual(keys, args.value)) {
-                    console.log("[DX_dropDownTreeView] syncing TreeView selection to", args.value);
+                    //console.log("[DX_dropDownTreeView] syncing TreeView selection to", args.value);
                     _this.syncTreeViewSelection(treeViewInstance, args.value);
                 }
                 _this.onDXValueChanged({ value: args.value });
@@ -467,12 +467,12 @@ function mw_datainput_item_DX_dropDownTreeView(options){
         }
 
         this.DXValue = filtered;
-        console.log("[DX_dropDownTreeView] Updated DXValue", this.DXValue);
+        //console.log("[DX_dropDownTreeView] Updated DXValue", this.DXValue);
 
         if(this.input_elem){
             this.input_elem.value = this.format_input_value(this.DXValue);
 			
-            console.log("[DX_dropDownTreeView] Updated hidden input", this.input_elem.value);
+           // console.log("[DX_dropDownTreeView] Updated hidden input", this.input_elem.value);
         }
 
         this.on_change();
@@ -490,7 +490,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
     };
 
     this.set_input_value = function(val){
-		console.log("[DX_dropDownTreeView] set_input_value", val);
+		//console.log("[DX_dropDownTreeView] set_input_value", val);
 
 		// Siempre parsea a array de IDs
 		this.DXValue = this.parse_input_value(val);
@@ -507,7 +507,7 @@ function mw_datainput_item_DX_dropDownTreeView(options){
 
 	this.updateDXValue = function(){
 		if(this.dx_ctr){
-			console.log("[DX_dropDownTreeView] updateDXValue to", this.DXValue);
+			//console.log("[DX_dropDownTreeView] updateDXValue to", this.DXValue);
 			//var nvalue=this.parse_input_value(this.DXValue);
 			this.dx_ctr.option("value", this.DXValue);
 		}
