@@ -172,7 +172,7 @@ function mw_placeholders(data){
 		}
 
 		
-		
+		//help me with the zindex of thie modal it is beeing hidden behind the ckeditor one
 		this.modal.show();
 
 		//this.setInputData();
@@ -294,12 +294,14 @@ function mw_placeholders(data){
 		}
 		var _this=this;
 		var params=this.data.get_param_if_object("modalOptions",true);
+		params.zIndex=120000;
 		this.modal=new mw_bootstrap_helper_modal_with_footer_inputs(params);
 		this.modal.options.set_param_default(Globalize.localize("Select"),"title");
 		this.createElems();
 		//
 		this.modal.appendToDocument();
 		this.modal.set_body(this.frmContainer);
+		
 		
 		
 	}
@@ -343,6 +345,7 @@ function mw_placeholders(data){
 	
 	
 }
+
 function mw_placeholder_item_base(data){
 	mw_objcol_item_base.call(this);
 	this.set_data(data);

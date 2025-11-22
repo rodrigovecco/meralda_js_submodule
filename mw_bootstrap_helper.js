@@ -126,6 +126,10 @@ function mw_bootstrap_helper_modal_dialog(options){
 		if(!modal){
 			return false;	
 		}
+		var zIndex=this.options.get_param_or_def("zIndex",false);
+		if(zIndex){
+			modal.setZIndex(zIndex);	
+		}
 		modal.set_body(this.options.get_param_or_def("message",false));
 		modal.set_title(this.options.get_param_or_def("title",false));
 		var _this=this;
@@ -243,6 +247,24 @@ function mw_bootstrap_helper_modal(options){
 		console.log("onCloseDone");
 		//needs setOnCloseDoneListener
 	}
+	this.setZIndex=function(zIndex){
+		this.zIndex = zIndex;
+		this.applyZIndex();
+	
+	}
+	this.applyZIndex=function(){
+		if(!this.zIndex){
+			return;
+		}
+		var cont=this.getJQContainer();
+		if(cont && cont.length){
+			$(cont).css('z-index', this.zIndex);
+		}
+		var backdrops=$(".modal-backdrop");
+		if(backdrops && backdrops.length){
+			$(backdrops[backdrops.length-1]).css('z-index', this.zIndex-1);
+		}
+	}
 	this.setOnCloseDoneListener=function(fnc){
 		var o={};
 		var _this=this;
@@ -279,15 +301,20 @@ function mw_bootstrap_helper_modal(options){
 	}
 	this.afterAppend=function(){
 		var p=this.options.get_param_or_def("title",false);
-		
-		this.set_title(p);	
+		this.set_title(p);
 		p=this.options.get_param_or_def("body",false);
-		this.set_body(p);	
+		this.set_body(p);
 		p=this.options.get_param_or_def("footer",false);
-		this.set_footer(p);	
+		this.set_footer(p);
 		if(this.options.get_param_or_def("hideFooter",false)){
-			mw_hide_obj(this.get_footer());	
+			mw_hide_obj(this.get_footer());
 		}
+		// Automatically set z-index if provided in options
+		var z = this.options.get_param_or_def("zIndex", null);
+		if (z !== null && typeof this.setZIndex === 'function') {
+			this.setZIndex(z);
+		}
+		this.applyZIndex();
 		this.afterAppendFinal();
 	}
 	this.createDomContainer=function(){
@@ -368,6 +395,13 @@ function mw_bootstrap_helper_modal(options){
 		var cont=this.getJQContainer();
 		if(!cont){
 			return false;
+		}
+		var _this=this;
+		if(this.zIndex){
+			this.applyZIndex();
+			$(cont).one('shown.bs.modal', function () {
+				_this.applyZIndex();
+			});
 		}
 		this.setUserAction("open");
 		$(cont).modal("show");
