@@ -11,6 +11,26 @@ class MeraldaFileManagerHelper {
         if (this.debug) console.log("[MeraldaFM]", ...arguments);
     }
 
+    downloadItems(items) {
+        this.log("Download items:", items);
+        if(items){
+            if(items.length>0){
+                for(let i=0;i<items.length;i++){
+                    this.downloadItem(items[i]);
+                }
+            }
+        }
+    }
+    downloadItem(item) {
+        if(item.path){
+            if(this.opts.downloadUrl){
+                var u=this.opts.downloadUrl+item.path;
+                window.open(u,"_blank");
+            }
+        }
+        //this.log("Download item:", item);
+    }
+
     // ============================================================
     // GET / POST NORMAL (con JSON)
     // ============================================================
@@ -66,7 +86,6 @@ class MeraldaFileManagerHelper {
             self.log("Response:", resp);
 
             if (resp?.success) {
-
                 if (expectsItems)
                     return resp.items || [];
 
@@ -86,10 +105,20 @@ class MeraldaFileManagerHelper {
                 return true;
             }
 
+            // ---- ERROR HANDLING ----
             let msg = resp?.msg || "Unknown error";
-            return $.Deferred().reject(new Error(msg)).promise();
+
+                // DevExtreme requires EXACTLY this to show the error
+                return $.Deferred().reject({
+                    message: msg,
+                    errorText: msg,
+                    errorMessage: msg
+                }).promise();
+
         });
+
     }
+
 
     // ============================================================
     // DEVEXTREME PROVIDER
@@ -218,8 +247,12 @@ class MeraldaFileManagerHelper {
                     })
                 );
             },
+            downloadItems: function(items) {
+                self.downloadItems(items);
 
-            //uploadChunkSize: 1024 * 1024, // 1MB
+            }
+
+            
         });
     }
 }
