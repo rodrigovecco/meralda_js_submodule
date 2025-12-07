@@ -75,6 +75,43 @@ function mw_devextreme_datagrid_man(params){
 	this.data=new mw_objcol();//no usado
 	this.data_key="id";//verificar uso
 	
+
+	this.getBtnsColumnBtns=function(){
+		//must be called before init_from_params
+		var colE=this.getBtnsColumnParams();
+		return colE["buttons"];
+	}
+	this.getBtnsColumnParams=function(){
+		//must be called before init_from_params
+		var btnsColParams=this.params.get_param_if_object("buttonsColumnParams");
+		var list=this.params.get_param_as_list("columnsExtra");
+        if(!list){
+            list=[];
+            this.params.set_param(list,"columnsExtra");
+        }
+        var colE=null;
+		for(var i=0;i<list.length;i++){
+			if(typeof list[i]=="object" ){
+				if(list[i]["type"]&&list[i]["type"]=="buttons"){
+					colE=list[i];
+				}
+			}
+		}
+		if(!colE){
+			colE={};
+			list.push(colE);
+		}
+        colE["type"]="buttons";
+        colE["fixedPosition"]="right";
+        colE["fixed"]=true;
+		if(!colE["buttons"]||!Array.isArray(colE["buttons"])){
+			colE["buttons"]=new Array();
+		}
+		return colE;
+
+	}
+	
+	
 	this.getCurrentColumnsOptionsByName = function(propsToInclude, unsafe) {
 		var data = {};
 		var dg = this.get_data_grid();

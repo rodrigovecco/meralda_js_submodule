@@ -252,46 +252,7 @@ function mw_devextreme_data(params){
 
 	
 
-	/////BETA
-	this.add2cache=function(id,data){
-		if(!this.cache){
-			this.cache={};	
-		}
-		if(!id){
-			return false;	
-		}
-		if(!data){
-			return false;	
-		}
-		this.cache[id]=data;
-
-	}
-	this.DSloadByKeyCache = function(key, extra) {
-		var _this = this;
-		var deferred = $.Deferred();
 	
-		if (this.cache && this.cache[key]) {
-			console.log("✅ Valor encontrado en cache:", key);
-			deferred.resolve(this.cache[key]);
-			return deferred.promise();
-		}
-	
-		console.log("⏳ Valor no en cache. Consultando servidor:", key);
-		
-		// Fallback a DSloadByKey si existe
-		if (typeof this.DSloadByKey === "function") {
-			this.DSloadByKey(key, extra).done(function(item) {
-				_this.add2cache(key, item); // Guarda en cache
-				deferred.resolve(item);
-			}).fail(function(err) {
-				deferred.reject(err);
-			});
-		} else {
-			deferred.reject("No DSloadByKey implementation available");
-		}
-	
-		return deferred.promise();
-	};
 
 	
 	this.createDataStore=function(){
@@ -334,6 +295,46 @@ function mw_devextreme_data(params){
 		//console.log("Created DataSource",ops);
 		return this.dataSource;  	
 	}
+	/////BETA
+	this.add2cache=function(id,data){
+		if(!this.cache){
+			this.cache={};	
+		}
+		if(!id){
+			return false;	
+		}
+		if(!data){
+			return false;	
+		}
+		this.cache[id]=data;
+
+	}
+	this.DSloadByKeyCache = function(key, extra) {
+		var _this = this;
+		var deferred = $.Deferred();
+	
+		if (this.cache && this.cache[key]) {
+			console.log("✅ Valor encontrado en cache:", key);
+			deferred.resolve(this.cache[key]);
+			return deferred.promise();
+		}
+	
+		console.log("⏳ Valor no en cache. Consultando servidor:", key);
+		
+		// Fallback a DSloadByKey si existe
+		if (typeof this.DSloadByKey === "function") {
+			this.DSloadByKey(key, extra).done(function(item) {
+				_this.add2cache(key, item); // Guarda en cache
+				deferred.resolve(item);
+			}).fail(function(err) {
+				deferred.reject(err);
+			});
+		} else {
+			deferred.reject("No DSloadByKey implementation available");
+		}
+	
+		return deferred.promise();
+	};
 	
 }
 function mw_devextreme_data_load_request(dataman,deferred,loadOptions){

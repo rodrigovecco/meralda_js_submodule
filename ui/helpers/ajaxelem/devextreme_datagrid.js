@@ -6,7 +6,9 @@ function mwuihelper_ajaxelem_devextreme_datagrid(params){
 	this.beforeDataGridManSet=function(){
 			
 	}
-	
+	this.beforeDataGridInit=function(){
+			
+	}
 	this.onLoadedDataOK=function(){
 		
 		if(!this.loadedData){
@@ -19,9 +21,11 @@ function mwuihelper_ajaxelem_devextreme_datagrid(params){
 		if(!this.dom_body){
 			return this.onLoadedDataFail();		
 		}
+		this.datagridman=dgman;
+		this.beforeDataGridInit();
 		dgman.init_from_params();
 		
-		this.datagridman=dgman;
+		//this.datagridman=dgman;
 		this.beforeDataGridManSet();
 		dgman.create_data_grid_on_elem(this.dom_body);
 		
