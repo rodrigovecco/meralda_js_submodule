@@ -45,6 +45,11 @@ function mw_devextreme_data(params){
 		this.createDataStore()
 		return this.DataStore;	
 	}
+	this.abort=function(){
+		if(this.ajax){
+			this.ajax.abort();	
+		}
+	}
 	this.getAjaxLoader=function(){
 		if(this.ajax){
 			return this.ajax;
@@ -74,17 +79,7 @@ function mw_devextreme_data(params){
 		return mw_url_build(url,o);
 		
 	}
-	this.DSloadOLD=function(loadOptions){
-		var deferred = $.Deferred();
-		console.log("DSload",loadOptions);
-		
-		var loader=new mw_devextreme_data_load_request(this,deferred,loadOptions);
-		if(!loader.doLoad()){
-			return deferred.promise();
-		}
-		return deferred.promise();
-			
-	}
+	
 	this.DSload = function(loadOptions) {
 		var deferred = $.Deferred();
 		console.log("🟢 DSload called", loadOptions);
