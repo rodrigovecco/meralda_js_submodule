@@ -500,9 +500,195 @@ function mw_datainput_dx_tagBox(options){
 		if(this.input_elem){
 			this.input_elem.value = this.DXValue.join(",") + "";
 		}
-		console.log("DX Value changed:", this.DXValue, "Prev:", e.previousValue);
+		//console.log("DX Value changed:", this.DXValue, "Prev:", e.previousValue);
 
 		this.on_change();
 	};
 }
+function mw_datainput_dx_colorBox(options){
+    mw_datainput_dx.call(this, options);
 
+    // ------------------------------------
+    // Crear ColorBox
+    // ------------------------------------
+    this.createDXctr = function(container, ops){
+        $($(container)).dxColorBox(ops);
+        this.DXctr = $($(container)).dxColorBox("instance");
+    };
+
+    // ------------------------------------
+    // Opciones propias del ColorBox
+    // ------------------------------------
+    this.getDXOptionsMore = function(params){
+        params.editAlphaChannel = false;  
+        params.showClearButton = true;   
+		if(this.options.get_param_or_def("editAlphaChannel",false)){
+			params.editAlphaChannel = true;  
+		}
+
+        var _this = this;
+
+        // Asegurar handler del DX
+        params.onValueChanged = function(e){
+            _this.onDXValueChanged(e);
+        };
+    };
+
+    
+    // ------------------------------------
+    // Setter
+    // ------------------------------------
+    this.set_input_value = function(val){
+        this.DXValue = val ? String(val) : null;
+
+        if(this.DXctr){
+            this.DXctr.option("value", this.DXValue);
+        }
+
+        if(this.input_elem){
+            this.input_elem.value = this.DXValue || "";
+        }
+    };
+
+    // ------------------------------------
+    // Getter
+    // ------------------------------------
+    this.get_input_value = function(){
+        return this.DXValue;
+    };
+
+    // ------------------------------------
+    // Cuando DX cambia el valor (incluye clear)
+    // ------------------------------------
+    this.onDXValueChanged = function(e){
+        this.DXValue = e.value ? String(e.value) : null;
+
+        if(this.input_elem){
+            this.input_elem.value = this.DXValue || "";
+        }
+
+        this.on_change();
+    };
+}
+function mw_datainput_dx_iconSelect(options){
+    mw_datainput_dx_selectBox.call(this, options);
+
+    // --------------------------
+    // Obtener lista desde shared
+    // --------------------------
+    this.autoCreateItems = function(){
+        var shared = this.getSharedOption("iconsList");
+        if(shared){
+            if(mw_is_array(shared)){
+                return shared;
+            }
+            if(mw_is_object(shared,"get_all_data")){
+                return shared.get_all_data();
+            }
+        }
+        return [];
+    };
+
+    // --------------------------
+    // Botón izquierdo: preview del icono
+    // --------------------------
+    this.create_left_btn = function(){
+        var wrap = document.createElement("span");
+        wrap.className = "input-group-text mw-icon-preview-wrapper";
+
+        var icon = document.createElement("span");
+        icon.className = "mw-icon-preview-icon";
+        wrap.appendChild(icon);
+
+        // guardamos referencia para actualizar luego
+        this.iconPreviewElem = icon;
+
+        return wrap;
+    };
+
+    this.updateIconPreview = function(){
+        if(!this.iconPreviewElem){
+            return;
+        }
+
+        // limpiamos clases previas
+        this.iconPreviewElem.className = "mw-icon-preview-icon";
+
+        if(this.DXValue){
+            // DXValue = id del icono, ej: "fa fa-user"
+            // añadimos esas clases al span del preview
+            var classes = (this.DXValue + "").split(" ");
+            for(var i = 0; i < classes.length; i++){
+                if(classes[i]){
+                    this.iconPreviewElem.classList.add(classes[i]);
+                }
+            }
+        }
+    };
+
+    // -----------------------------------
+    // Opciones DX específicas del Select
+    // -----------------------------------
+    this.getDXOptionsMore = function(params){
+        var _this = this;
+
+        params.showClearButton = true;
+        params.searchEnabled   = true; // aunque con fieldTemplate no habrá búsqueda real, lo dejamos
+
+        params.displayExpr = "name";
+        params.valueExpr   = "id";
+
+        if((!params.dataSource) && (!params.items)){
+            params.items = this.autoCreateItems();
+        }
+
+        console.log("IconSelect Items:", params.items);
+
+        // ----------------------------
+        // Item Template (lista desplegable)
+        // ----------------------------
+        params.itemTemplate = function(data){
+            if(!data) return "";
+            return '<div class="mw-icon-item">' +
+                    '<span class="' + data.id + '"></span>' +
+                    '<span style="margin-left:6px">' + data.name + '</span>' +
+                   '</div>';
+        };
+
+        
+
+        params.onValueChanged = function(e){
+            _this.onDXValueChanged(e);
+        };
+    };
+
+    // --------------------------
+    // Setter: sincroniza DX, hidden y preview
+    // --------------------------
+    this.set_input_value = function(val){
+        this.DXValue = val;
+
+        if(this.DXctr){
+            this.DXctr.option("value", val);
+        }
+        if(this.input_elem){
+            this.input_elem.value = this.format_input_value(val) + "";
+        }
+
+        this.updateIconPreview();
+    };
+
+    // --------------------------
+    // Handler de cambio DX: como el base + preview
+    // --------------------------
+    this.onDXValueChanged = function(e){
+        if(e){
+            this.DXValue = e.value;
+            if(this.input_elem){
+                this.input_elem.value = this.format_input_value(e.value) + "";
+            }
+        }
+        this.updateIconPreview();
+        this.on_change();
+    };
+}

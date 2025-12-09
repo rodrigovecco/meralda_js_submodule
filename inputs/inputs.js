@@ -6,6 +6,28 @@ function mw_datainput_item_abs(){
 		this.set_cod(this.options.get_param_or_def("cod",false));
 		this.afterInit();
 	}
+	this.getSharedOption=function(cod){
+		if(this.options.param_exists("shared."+cod)){
+			return this.options.get_param("shared."+cod);
+		}
+		if(this.parent){
+			return this.parent.getSharedOption(cod);
+		}
+		
+	}
+	this.doSharedAction=function(cod,arg){
+		var fnc=this.getSharedOption("action_"+cod);
+		if(mw_is_function(fnc)){
+			return fnc(arg,this);
+		}
+	}
+	this.setSharedAction=function(cod,fnc){
+		if(!mw_is_function(fnc)){
+			return false;
+		}
+		this.options.set_param(fnc,"shared.action_"+cod);
+	}
+
 	this.disabledOnReadOnly=function(){
 		return false;
 	}
