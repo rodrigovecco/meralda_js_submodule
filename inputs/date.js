@@ -15,7 +15,9 @@ function mw_datainput_item_date(options){
 		}
 	}
 	this.setMWDateFromStr=function(strDate){
+		console.log("setMWDateFromStr",strDate);
 		if(this.options.get_param_or_def("inputTimeOnlyMode",false)){
+			console.log("setMWDateFromStr flexibleMode",strDate);
 			return 	this.mw_date.set_from_sys_value_flexibleMode(strDate);
 		}else{
 			return 	this.mw_date.set_from_sys_value(strDate);
@@ -194,6 +196,7 @@ function mw_datainput_item_date(options){
 		c.className="form-control";
 		c.type="hidden";
 		this.set_def_input_atts(c);
+		
 		return c;
 	}
 	
