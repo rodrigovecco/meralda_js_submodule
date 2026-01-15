@@ -1,8 +1,119 @@
-//20250307
+//20260115
 function mw_devextreme_data(params){
 	this.params=new mw_obj();
 	this.params.set_params(params);
 	this.editedIds=[];
+
+	
+	// ---------------------------------------------------------
+	// DevExtreme DS filter helpers (self-contained)
+	// ---------------------------------------------------------
+
+	this._dxFilterRemoveByField = function(filter, field){
+		if(!filter) return null;
+
+		// Anti-basura: jamás dejar ["fecha","fecha"]
+		if(Array.isArray(filter) && filter.length === 2 && typeof filter[0] === "string" && typeof filter[1] === "string"){
+			return null;
+		}
+
+		// 1) Condición simple: ["field","op",value]
+		if(Array.isArray(filter) && typeof filter[0] === "string" && typeof filter[1] === "string" && filter.length >= 3){
+			return (filter[0] === field) ? null : filter;
+		}
+
+		if(!Array.isArray(filter)) return filter;
+
+		// Detecta si hay conectores (and/or)
+		let hasConnector = false;
+		for(let i=0;i<filter.length;i++){
+			if(filter[i] === "and" || filter[i] === "or"){ hasConnector = true; break; }
+		}
+
+		// 2) Grupo puro: [[cond],[cond]] (sin and/or) -> limpiar hijos, NO normalizar
+		const isPureGroup = !hasConnector && filter.every(x => Array.isArray(x));
+		if(isPureGroup){
+			const cleaned = filter
+			.map(x => this._dxFilterRemoveByField(x, field))
+			.filter(x => x !== null && x !== undefined);
+			return cleaned.length ? cleaned : null;
+		}
+
+		// 3) Compuesto con and/or
+		var out = [];
+		for(var j=0; j<filter.length; j++){
+			var part = filter[j];
+			if(typeof part === "string"){
+			out.push(part);
+			continue;
+			}
+			var cleanedPart = this._dxFilterRemoveByField(part, field);
+			if(cleanedPart !== null && cleanedPart !== undefined){
+			out.push(cleanedPart);
+			}
+		}
+
+		// Normaliza conectores
+		var norm = [];
+		for(var k=0; k<out.length; k++){
+			var p = out[k];
+			if(typeof p === "string"){
+			if(p !== "and" && p !== "or") continue;
+			if(norm.length === 0) continue;
+			if(typeof norm[norm.length-1] === "string") continue;
+			norm.push(p);
+			} else {
+			norm.push(p);
+			}
+		}
+		while(norm.length && typeof norm[norm.length-1] === "string") norm.pop();
+
+		if(!norm.length) return null;
+		if(norm.length === 1) return norm[0];
+		return norm;
+	};
+
+
+
+	this._dxFilterSetField = function(baseFilter, field, op, value){
+		var cleaned = this._dxFilterRemoveByField(baseFilter, field);
+
+		// clear only
+		if(value === null || value === "" || typeof value === "undefined"){
+			return cleaned;
+		}
+
+		var cond = [field, op || "=", value];
+		if(!cleaned){
+			return cond;
+		}
+		return [cleaned, "and", cond];
+	};
+
+	
+	this.dxFilterSetField = function(ds, field, op, value){
+		let f = ds.filter();
+		f = this._dxFilterRemoveByField(f, field); // quita previos
+
+		if(value === null || value === "" || value === undefined){
+			ds.filter(f || null);
+			return;
+		}
+
+		const cond = [field, op || "=", String(value)];
+
+		if(!f){
+			ds.filter(cond);
+			return;
+		}
+
+		// si ya es compuesto, lo unimos con and
+		ds.filter([f, "and", cond]);
+	};
+
+	
+	
+	
 	this.getDataKey=function(){
 		return this.params.get_param_or_def("dataKey","id");	
 	}
@@ -341,7 +452,7 @@ function mw_devextreme_data_load_request(dataman,deferred,loadOptions){
 	}
 	this.doLoad=function(){
 		var url=this.getUrl();
-		console.log("loadOptions",this.loadOptions);
+		console.log("loadOptions doLoad",this.loadOptions);
 		if(!url){
 			return false;	
 		}
@@ -358,11 +469,14 @@ function mw_devextreme_data_load_request(dataman,deferred,loadOptions){
 		if(!mw_is_object(p)){
 			p={};	
 		}
+		console.log("parseLoadOptions",p);
 		if(mw_is_object(p["filter"])){
-			p.filter=JSON.stringify(p.filter);	
+			p.filter=JSON.stringify(p.filter);
+			console.log("filter parsed",p.filter);	
 		}
 		if(mw_is_object(p["sort"])){
 			p.sort=JSON.stringify(p.sort);
+			console.log("sort parsed",p.sort);
 			
 		}
 		return p;
