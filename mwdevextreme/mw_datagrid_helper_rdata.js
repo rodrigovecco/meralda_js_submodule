@@ -24,7 +24,13 @@ function mw_devextreme_datagrid_man_rdata(params){
 		}else{
 			this.dataSourceMan=new mw_devextreme_data(params);	
 		}
+		this.dataSourceMan.setAdditionalLoadURLParams = function(params) {
+			_this.setAdditionalLoadURLParams(params);
+		};
 		return this.dataSourceMan;	
+	}
+	this.setAdditionalLoadURLParams=function(params){
+		//
 	}
 	this.getDataSource=function(){
 		if(!this.dataSource){

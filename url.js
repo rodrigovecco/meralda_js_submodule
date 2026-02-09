@@ -113,7 +113,9 @@ function mw_url(){
 		for (i = 0; i < args.length; i++) { 
 			Separ = args[i].split("=");
 			if(Separ[0]){
-				p=new mw_url_param(Separ[0],Separ[1]);
+				// Decode the value since it comes URL-encoded from the query string
+				var decodedVal = Separ[1] ? decodeURIComponent(Separ[1]) : Separ[1];
+				p=new mw_url_param(Separ[0],decodedVal);
 				this.params.push(p);
 			}
 		}

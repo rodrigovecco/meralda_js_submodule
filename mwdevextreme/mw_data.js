@@ -185,10 +185,13 @@ function mw_devextreme_data(params){
 			}
 		}
 		
-		
+		this.setAdditionalLoadURLParams(o);
 		
 		return mw_url_build(url,o);
 		
+	}
+	this.setAdditionalLoadURLParams=function(params){
+		//
 	}
 	
 	this.DSload = function(loadOptions) {

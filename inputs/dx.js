@@ -357,6 +357,18 @@ function mw_datainput_dx_tagBox(options){
 		this.DXctr = $($(container)).dxTagBox('instance');
 	};
 
+	this.get_input_value=function(){
+		if(this.DXValue){
+			if(Array.isArray(this.DXValue)){
+				return this.DXValue.join(",") + "";
+			}
+			return this.DXValue;
+		}
+
+		
+		
+	}
+
 	this.autoCreateItems = function(){
 		var list = this.options.get_param_as_list("optionslist");
 		if(!list){
