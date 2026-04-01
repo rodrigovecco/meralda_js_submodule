@@ -1483,6 +1483,14 @@ function mw_datainput_item_text(options){
 	
 }
 
+function mw_datainput_item_password(options){
+	mw_datainput_item_base.call(this,options);
+	this.create_input_elem_set_other_params=function(inputElem){
+		inputElem.type="password";
+		inputElem.autocomplete="new-password";
+	}
+}
+
 
 
 function mw_datainput_item_input(options){
