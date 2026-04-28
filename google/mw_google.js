@@ -12,23 +12,20 @@ function mw_google_man(params){
 	this.loadingStatus=0;
 	this.loaded=false;
 
+	/**
+	 * @deprecated Google deprecated `gapi.auth2` in March 2023.
+	 * The framework now loads Google Identity Services (GIS) from
+	 * `https://accounts.google.com/gsi/client` instead of `apis.google.com/js/platform.js`,
+	 * so `window.gapi` will not be defined and this method is a no-op.
+	 *
+	 * Use `window.google.accounts.id.initialize({ client_id, callback })` and
+	 * `window.google.accounts.id.renderButton(elem, options)` directly. See
+	 * `pp_cl_ui_login.onGoogleReady` / `googleAttachSignin` in
+	 * `res/pastipan/clui/ui/login.js` for a working example.
+	 */
 	this.loadAuth2=function(fnc,params){
-		if(!this.gapiOK()){
-			console.log("Google Api not laoded");
-			return false;
-		}
-		if(!mw_is_object(params)){
-			params={};
-		}
-		params["client_id"]=this.params.get_param_or_def("clientID","");
-		gapi.load('auth2', function(){
-			  var a = gapi.auth2.init(params);
-			  if(mw_is_function(fnc)){
-				fnc(a);	  
-			  }
-			  
-			});
-
+		console.warn("mw_google_man.loadAuth2() is deprecated: gapi.auth2 was removed. Use Google Identity Services (google.accounts.id) instead.");
+		return false;
 	}
 	this.gapiOK=function(){
 		if(!window["gapi"]){
