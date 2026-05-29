@@ -193,7 +193,8 @@ function mw_datainput_item_elemschoise(options){
 			lbl.innerHTML=p;
 			p=this.get_input_id();
 			if(p){
-				lbl.htmlFor=id;	
+				lbl.htmlFor=p;//
+				
 			}
 			c.appendChild(lbl);
 		}
