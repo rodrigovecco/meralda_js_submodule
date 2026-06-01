@@ -19,12 +19,15 @@ $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', functio
 		if(!list.length){
 			return;	
 		}
-    var $target = $(list[0]);
-		if(!$target){
-			return;	
+		var targetEl = list[0];
+		// Bootstrap 5: use native Collapse API (jQuery plugin removed in BS5)
+		if(typeof bootstrap !== 'undefined' && bootstrap.Collapse){
+			var bsCollapse = bootstrap.Collapse.getOrCreateInstance(targetEl);
+			bsCollapse.toggle();
+		}else{
+			// Bootstrap 3/4 fallback via jQuery plugin
+			$(targetEl).collapse("toggle");
 		}
-   	$target.collapse("toggle");
-   
 })
 
 $(function () {
