@@ -95,6 +95,20 @@ function mw_is_object(data,checkfnc){
 	}
 	return false;
 }
+/**
+ * Escape the 5 HTML-significant characters so a value is safe to drop into
+ * innerHTML / template strings. Numbers are coerced to string and escaped
+ * the same way (harmless, keeps the contract uniform).
+ */
+function mw_html_escape(s){
+	if(s===null||s===undefined){ return ""; }
+	s=""+s;
+	return s.replace(/&/g,"&amp;")
+	        .replace(/</g,"&lt;")
+	        .replace(/>/g,"&gt;")
+	        .replace(/"/g,"&quot;")
+	        .replace(/'/g,"&#39;");
+}
 function mw_is_function(data){
 	if(!data){
 		return false;	
@@ -598,6 +612,35 @@ function mw_obj(){
 			}
 		}
 		return def;
+	}
+	/**
+	 * Return a param value guaranteed to be a string or number.
+	 *
+	 * If the stored value is not textual/numeric (missing, object, boolean,
+	 * empty string, NaN), fall back to `def`; when `def` is omitted the
+	 * param code itself is returned, so callers never need to hardcode
+	 * fallback strings. Typical use is for the Meralda lng.* catalog:
+	 *
+	 *   this.params.get_param_str("lng.startDate")
+	 *   // → "Inicio" when set, otherwise "lng.startDate"
+	 *
+	 *   this.params.get_param_str("lng.startDate", "Default")
+	 *   // → "Inicio" when set, otherwise "Default"
+	 */
+	this.get_param_str=function(cod,def){
+		var p=this.get_param(cod);
+		if(typeof p==="string" && p!==""){ return p; }
+		if(typeof p==="number" && !isNaN(p)){ return p; }
+		return (def===undefined) ? cod : def;
+	}
+	/**
+	 * Same as get_param_str, but the result is HTML-escaped so it is safe
+	 * to concatenate into innerHTML / template strings. Falls back to the
+	 * param code (also escaped) when no value is stored.
+	 */
+	this.get_param_str_escaped=function(cod,def){
+		var s=this.get_param_str(cod,def);
+		return mw_html_escape(s);
 	}
 
 	this.get_param=function(cod){
