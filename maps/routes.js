@@ -72,7 +72,40 @@ class mwRoute {
     self.createRoute = function(origin, destination) {
       return new mwRoute(self, origin, destination);
     };
-  
+
+    // Normalized distance/duration extraction.
+    // Works for both Google Directions API result and OSRM HTTP API response.
+    // Returns { distance (meters), duration (seconds), distanceInKm, durationInMinutes }.
+    self.extractDistanceAndDuration = function(result) {
+      var r = { distance: 0, duration: 0 };
+      if (!result || !result.routes || !result.routes.length) {
+        return r;
+      }
+      var route = result.routes[0];
+      // Google Directions: aggregate legs[].distance/duration.value
+      if (route.legs && route.legs.length) {
+        route.legs.forEach(function(leg) {
+          if (leg.distance && typeof leg.distance.value === "number") {
+            r.distance += leg.distance.value;
+          }
+          if (leg.duration && typeof leg.duration.value === "number") {
+            r.duration += leg.duration.value;
+          }
+        });
+      } else {
+        // OSRM HTTP API: route.distance (meters) and route.duration (seconds)
+        if (typeof route.distance === "number") {
+          r.distance = route.distance;
+        }
+        if (typeof route.duration === "number") {
+          r.duration = route.duration;
+        }
+      }
+      r.distanceInKm = (r.distance / 1000).toFixed(2);
+      r.durationInMinutes = (r.duration / 60).toFixed(2);
+      return r;
+    };
+
     return self;
   }
   
