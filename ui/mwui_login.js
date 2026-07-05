@@ -140,6 +140,23 @@ function mw_ui_login(info){
 		this.frm_man.disable_all_submit_btns(true);
 
 	}
+	this.show_invalid_session_msg=function(){
+		if(this.frm_man){
+			this.frm_man.cant_submit=true;
+			this.frm_man.disable_all_submit_btns(false);
+		}
+		var e;
+		if(e=this.get_ui_elem("invalidsession")){
+			var msg=this.params.get_param_or_def("invalid_session_msg","El formulario ha expirado. Recarga la página.");
+			var lbl=this.params.get_param_or_def("invalid_session_reload_lbl","Recargar página");
+			$(e).html(
+				"<i class='fa fa-exclamation-circle me-2'></i>"+msg+
+				"<br><button class='btn btn-warning btn-sm mt-2' onclick='window.location.reload()'>"+
+				"<i class='fa fa-refresh me-1'></i>"+lbl+"</button>"
+			);
+			mw_show_obj(e);
+		}
+	}
 	this.on_post_response=function(data){
 		var dataman=new mw_obj();
 		dataman.set_params(data);
@@ -150,7 +167,11 @@ function mw_ui_login(info){
 				window.location=this.params.get_param_or_def("onokurl","index.php");
 			}
 			return;
-				
+
+		}
+		if(dataman.get_param("result.login_invalid_session_token")){
+			this.show_invalid_session_msg();
+			return;
 		}
 		if(p=dataman.get_param_if_object("msg")){
 			this.show_popup_notify(p);
@@ -163,10 +184,10 @@ function mw_ui_login(info){
 			this.start_re_enable_timeout(dataman.get_param("result.login_not_allowed_timeout.seconds"));
 		}else{
 			//this.start_re_enable_timeout(1);
-			this.re_enable_frm();	
+			this.re_enable_frm();
 		}
-		
-		
+
+
 	}
 	this.get_waiting_msg=function(){
 		return this.params.get_param("please_wait")+" "+this.re_enable_on_seconds+" "+this.params.get_param("seconds")+".";	
