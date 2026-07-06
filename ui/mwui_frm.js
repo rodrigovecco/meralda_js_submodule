@@ -92,7 +92,9 @@ function mw_ui_frm_ajax(info){
         if(resp){
             this.show_popup_notify(resp.get_param_if_object("jsresponse.notify"));
             if(resp.get_param("ok")){
-               this.ctrs.getChildByDotCod("data").set_input_value(this.params.get_param_if_object("defdata"));
+               if(this.params.get_param("resetOnSuccess")){
+                   this.ctrs.getChildByDotCod("data").set_input_value(this.params.get_param_if_object("defdata"));
+               }
 			   var url=resp.get_param("redirecturl");
 			   
 			   if(url){
