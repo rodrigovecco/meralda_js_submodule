@@ -243,6 +243,19 @@ function mw_datainput_dx_selectBox(options){
 			params["displayExpr"]="name";
 			params["valueExpr"]="cod";
 		}
+		// With shading disabled, DevExtreme attaches the dropdown popup to the
+		// nearest positioned ancestor instead of <body> by default, which can
+		// make the options list render far away from the input depending on
+		// the surrounding DOM/layout (e.g. stretched flex columns). Force it
+		// to always attach to <body> unless explicitly overridden.
+		if(!this.options.param_exists("DXOptions.dropDownOptions.container")){
+			if(!params.dropDownOptions){
+				params.dropDownOptions={};
+			}
+			if(!params.dropDownOptions.container){
+				params.dropDownOptions.container=document.body;
+			}
+		}
 		
 	}
 	this.getSelectedItemData=function(){
