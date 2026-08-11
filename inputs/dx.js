@@ -252,9 +252,11 @@ function mw_datainput_dx_selectBox(options){
 			if(!params.dropDownOptions){
 				params.dropDownOptions={};
 			}
+			/*
 			if(!params.dropDownOptions.container){
 				params.dropDownOptions.container=document.body;
 			}
+			*/
 		}
 		
 	}
