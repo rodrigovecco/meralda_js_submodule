@@ -26,20 +26,27 @@
  * Solution
  * --------
  * Watch the DOM (MutationObserver) and, after a short settle delay (so we never
- * fight DevExtreme's open/focus/animation phase), fix any VISIBLE content whose
- * transform has a LARGE component that duplicates its wrapper's component.
+ * fight DevExtreme's open/focus/animation phase), fix any content whose transform
+ * has a LARGE component that duplicates its wrapper's component.
  *
  * The correction is per-axis and idempotent:
  *
  *   content.axis = content.axis - wrapper.axis   (lands near 0 / -1)
  *
- * - "Per-axis" matters: the calendar case is broken only on X (content
- *   `translate(358px, -2px)` vs wrapper `translate(358px, 308px)`), while Y is
- *   already the correct small relative offset. An all-or-nothing check would
- *   miss it.
- * - The settle delay + visibility check avoid touching content while it is still
- *   being shown/focused, which previously made selectboxes close immediately
- *   (lost focus).
+ * An axis is fixed only when BOTH the content and the wrapper are large on that
+ * axis AND nearly equal (i.e. the content is duplicating the wrapper's absolute
+ * offset). This handles:
+ *
+ * - The calendar case: broken only on X (content `translate(358px, -2px)` vs
+ *   wrapper `translate(358px, 308px)`), while Y is already the correct small
+ *   relative offset. An all-or-nothing check would miss it.
+ * - The scroll case: DevExtreme hides dropdowns with `opacity: 0` +
+ *   `dx-state-invisible` when the page/grid scrolls, but their transform is still
+ *   updated (and can be broken). We correct them even while hidden (we only skip
+ *   `display:none`), so they are aligned when shown again.
+ *
+ * The settle delay avoids touching content while it is still being shown/focused,
+ * which previously made selectboxes close immediately (lost focus).
  *
  * Popups (wrapper at 0,0) and healthy overlays (small content offset) are never
  * touched.
@@ -51,12 +58,14 @@
 	'use strict';
 
 	// Thresholds (px).
-	// LARGE: a content transform component above this is treated as "absolute
-	//        position leaked into the relative offset" (legit offsets are < ~40px).
+	// LARGE: a transform component above this is treated as "an absolute position
+	//        leaked into the relative offset". Legit relative offsets are tiny
+	//        (-1 / -2 / 0, or a small `offset`), so anything above this that also
+	//        matches its wrapper is a duplication.
 	// CLOSE: how close a content component must be to its wrapper component to be
 	//        considered a duplication of the wrapper position.
-	var THRESHOLD_LARGE = 60;
-	var THRESHOLD_CLOSE = 12;
+	var THRESHOLD_LARGE = 8;
+	var THRESHOLD_CLOSE = 4;
 
 	// Delay after the last DOM change before correcting, so we never interrupt
 	// DevExtreme while it is still showing/focusing an overlay.
@@ -119,25 +128,19 @@
 		return { x: parseFloat(m[1]), y: parseFloat(m[2]) };
 	}
 
-	// Returns true when an element is currently visible (skip hidden/animated-out overlays).
-	function isVisible(el) {
-		if (!el) {
-			return false;
-		}
-		if (el.style && (el.style.display === 'none' || el.style.visibility === 'hidden' || el.style.opacity === '0')) {
-			return false;
-		}
-		try {
-			var cs = window.getComputedStyle(el);
-			return cs && cs.visibility !== 'hidden' && cs.opacity !== '0';
-		} catch (e) {
-			return true;
-		}
+	// Returns true when an element is actually rendered (not `display:none`).
+	// We intentionally do NOT skip `opacity:0` / `visibility:hidden` overlays:
+	// DevExtreme hides dropdowns with `opacity:0` + `dx-state-invisible` on
+	// scroll, but their transform is still updated and can be broken. Correcting
+	// them while hidden keeps them aligned when they are shown again.
+	function isRendered(el) {
+		return !el || !el.style || el.style.display !== 'none';
 	}
 
 	// Corrects a content element whose transform duplicates the wrapper offset.
-	// Correction is per-axis: each large axis that is close to the wrapper's same
-	// axis is reduced by the wrapper value, leaving only the small relative offset.
+	// Correction is per-axis and requires BOTH the content and the wrapper to be
+	// large on that axis AND nearly equal (duplication). Each such axis is reduced
+	// by the wrapper value, leaving only the small relative offset.
 	function fixContent(content) {
 		if (!isOverlayContent(content)) {
 			return;
@@ -146,7 +149,7 @@
 		if (!wrapper || !isOverlayWrapper(wrapper)) {
 			return;
 		}
-		if (!isVisible(content)) {
+		if (!isRendered(content)) {
 			return;
 		}
 
@@ -160,11 +163,11 @@
 		var ny = c.y;
 		var changed = false;
 
-		if (Math.abs(c.x) > THRESHOLD_LARGE && Math.abs(c.x - w.x) <= THRESHOLD_CLOSE) {
+		if (Math.abs(c.x) > THRESHOLD_LARGE && Math.abs(w.x) > THRESHOLD_LARGE && Math.abs(c.x - w.x) <= THRESHOLD_CLOSE) {
 			nx = c.x - w.x;
 			changed = true;
 		}
-		if (Math.abs(c.y) > THRESHOLD_LARGE && Math.abs(c.y - w.y) <= THRESHOLD_CLOSE) {
+		if (Math.abs(c.y) > THRESHOLD_LARGE && Math.abs(w.y) > THRESHOLD_LARGE && Math.abs(c.y - w.y) <= THRESHOLD_CLOSE) {
 			ny = c.y - w.y;
 			changed = true;
 		}
