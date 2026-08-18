@@ -288,6 +288,17 @@
 	}
 
 	function start() {
+		// DISABLED BY DEFAULT.
+		// The root cause was fixed in layout.css: the `@media (prefers-reduced-motion:
+		// reduce)` universal reset (`*, *::before, *::after { transition-duration:
+		// 0.01ms !important }`) was cancelling DevExtreme's overlay transitions and
+		// breaking the flipped popup/calendar position measurement. That reset now
+		// excludes `dx-` elements, so this runtime mitigation is no longer needed and
+		// is kept only as reference. To re-enable it (e.g. for diagnostics), set
+		// `window.__dxOverlayFixEnabled = true` before this script runs.
+		if (window.__dxOverlayFixEnabled !== true) {
+			return;
+		}
 		if (observer) {
 			return;
 		}
