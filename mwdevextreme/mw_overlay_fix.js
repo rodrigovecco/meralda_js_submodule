@@ -68,12 +68,14 @@
 	var THRESHOLD_CLOSE = 4;
 
 	// Delay after the last DOM change before correcting, so we never interrupt
-	// DevExtreme while it is still showing/focusing an overlay.
-	var SETTLE_MS = 150;
+	// DevExtreme while it is still showing/focusing an overlay. Long enough for
+	// selectbox dropdown popups to finish their fade-in before we touch them.
+	var SETTLE_MS = 400;
 
 	var sweepTimer = null;
 	var observer = null;
 	var debug = false;
+	var observeOnly = false;
 
 	function log() {
 		if (debug && window.console) {
@@ -137,6 +139,28 @@
 		return !el || !el.style || el.style.display !== 'none';
 	}
 
+	// True while an overlay is still fading in/out (opacity mid-transition).
+	// Modifying the transform during this window can break DevExtreme and make
+	// selectbox dropdowns close immediately, so we skip and re-check later.
+	function isAnimating(el) {
+		if (!el || !window.getComputedStyle) {
+			return false;
+		}
+		var o = parseFloat(window.getComputedStyle(el).opacity);
+		return o > 0 && o < 1;
+	}
+
+	// Short string snapshot of an element's opening tag (includes its inline
+	// style), so the exact values can be copied from the console even after the
+	// overlay has been removed from the DOM.
+	function snapshot(el) {
+		if (!el || !el.outerHTML) {
+			return '';
+		}
+		var s = el.outerHTML;
+		return s.length > 320 ? s.slice(0, 320) + '…' : s;
+	}
+
 	// Corrects a content element whose transform duplicates the wrapper offset.
 	// Correction is per-axis and requires BOTH the content and the wrapper to be
 	// large on that axis AND nearly equal (duplication). Each such axis is reduced
@@ -164,11 +188,19 @@
 				logAlways('[mw_overlay_fix] NOT FIXED (wrapper has no parseable transform)',
 					'wrapper.style.transform=', wrapper.style ? wrapper.style.transform : undefined,
 					'content=(' + c.x + ',' + c.y + ')',
-					content);
+					'wrapperHTML=', snapshot(wrapper),
+					'contentHTML=', snapshot(content));
 			}
 			return;
 		}
 		if (!c || !w) {
+			return;
+		}
+
+		// Skip overlays that are still fading in/out: correcting them mid-animation
+		// can make selectbox dropdowns close immediately. Re-check once settled.
+		if (isAnimating(content) || isAnimating(wrapper)) {
+			scheduleSweep();
 			return;
 		}
 
@@ -191,10 +223,20 @@
 			logAlways('[mw_overlay_fix] NOT FIXED (gate failed)',
 				'wrapper=(' + w.x + ',' + w.y + ')',
 				'content=(' + c.x + ',' + c.y + ')',
-				content);
+				'wrapperHTML=', snapshot(wrapper),
+				'contentHTML=', snapshot(content));
 			return;
 		}
 		if (!changed) {
+			return;
+		}
+
+		// Observe-only mode: report what WOULD be fixed, but do not touch the DOM.
+		if (observeOnly) {
+			logAlways('[mw_overlay_fix] OBSERVE ONLY (would fix)',
+				'wrapper=(' + w.x + ',' + w.y + ')',
+				'content=(' + c.x + ',' + c.y + ')',
+				'-> (' + nx + ',' + ny + ')');
 			return;
 		}
 
@@ -252,6 +294,8 @@
 
 		// Enable diagnostic logging from the console: window.__dxOverlayFixDebug = true
 		debug = window.__dxOverlayFixDebug === true;
+		// Observe-only mode (log, never modify): window.__dxOverlayFixObserve = true
+		observeOnly = window.__dxOverlayFixObserve === true;
 
 		logAlways('[mw_overlay_fix] loaded and active');
 		if (debug) {
