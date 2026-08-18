@@ -155,6 +155,19 @@
 
 		var c = parseTranslate(content);
 		var w = parseTranslate(wrapper);
+
+		// Diagnostic: if the content has a large (absolute-looking) offset but we
+		// cannot read the wrapper transform, report it so we can see the actual
+		// structure (e.g. selectbox dropdowns nested inside a filter menu).
+		if (c && !w) {
+			if (Math.abs(c.x) > THRESHOLD_LARGE || Math.abs(c.y) > THRESHOLD_LARGE) {
+				logAlways('[mw_overlay_fix] NOT FIXED (wrapper has no parseable transform)',
+					'wrapper.style.transform=', wrapper.style ? wrapper.style.transform : undefined,
+					'content=(' + c.x + ',' + c.y + ')',
+					content);
+			}
+			return;
+		}
 		if (!c || !w) {
 			return;
 		}
@@ -172,6 +185,15 @@
 			changed = true;
 		}
 
+		// Diagnostic: content looks broken (large offset) but the per-axis gate
+		// did not trigger, so we can see why (wrapper not large, or not close).
+		if (!changed && (Math.abs(c.x) > THRESHOLD_LARGE || Math.abs(c.y) > THRESHOLD_LARGE)) {
+			logAlways('[mw_overlay_fix] NOT FIXED (gate failed)',
+				'wrapper=(' + w.x + ',' + w.y + ')',
+				'content=(' + c.x + ',' + c.y + ')',
+				content);
+			return;
+		}
 		if (!changed) {
 			return;
 		}
