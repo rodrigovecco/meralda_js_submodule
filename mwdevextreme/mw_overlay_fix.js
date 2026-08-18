@@ -25,15 +25,24 @@
  *
  * Solution
  * --------
- * Watch the DOM (MutationObserver) and, whenever a `.dx-overlay-content` has a
- * large transform that is nearly identical to its `.dx-overlay-wrapper` (i.e. it
- * is duplicating the offset), correct it back to just the relative offset:
+ * Watch the DOM (MutationObserver) and, after a short settle delay (so we never
+ * fight DevExtreme's open/focus/animation phase), fix any VISIBLE content whose
+ * transform has a LARGE component that duplicates its wrapper's component.
  *
- *   content = content - wrapper   (usually lands at -1px, -1px)
+ * The correction is per-axis and idempotent:
  *
- * The correction is idempotent: once the content reaches a small value (-1px) it
- * no longer re-triggers. It does not interfere with popups (their wrapper sits at
- * 0,0) nor with correctly positioned overlays (their content is already small).
+ *   content.axis = content.axis - wrapper.axis   (lands near 0 / -1)
+ *
+ * - "Per-axis" matters: the calendar case is broken only on X (content
+ *   `translate(358px, -2px)` vs wrapper `translate(358px, 308px)`), while Y is
+ *   already the correct small relative offset. An all-or-nothing check would
+ *   miss it.
+ * - The settle delay + visibility check avoid touching content while it is still
+ *   being shown/focused, which previously made selectboxes close immediately
+ *   (lost focus).
+ *
+ * Popups (wrapper at 0,0) and healthy overlays (small content offset) are never
+ * touched.
  *
  * This script is standalone (vanilla JS, no jQuery/DevExtreme dependencies), so it
  * can be loaded in any order and applies to ALL overlays.
@@ -41,11 +50,19 @@
 (function () {
 	'use strict';
 
-	// Thresholds (px). Absolute values above LARGE are considered "real position".
-	var THRESHOLD_LARGE = 8;
-	var THRESHOLD_CLOSE = 4;
+	// Thresholds (px).
+	// LARGE: a content transform component above this is treated as "absolute
+	//        position leaked into the relative offset" (legit offsets are < ~40px).
+	// CLOSE: how close a content component must be to its wrapper component to be
+	//        considered a duplication of the wrapper position.
+	var THRESHOLD_LARGE = 60;
+	var THRESHOLD_CLOSE = 12;
 
-	var scheduled = false;
+	// Delay after the last DOM change before correcting, so we never interrupt
+	// DevExtreme while it is still showing/focusing an overlay.
+	var SETTLE_MS = 150;
+
+	var sweepTimer = null;
 	var observer = null;
 	var debug = false;
 
@@ -102,21 +119,34 @@
 		return { x: parseFloat(m[1]), y: parseFloat(m[2]) };
 	}
 
-	function isLarge(v) {
-		return Math.abs(v.x) > THRESHOLD_LARGE || Math.abs(v.y) > THRESHOLD_LARGE;
-	}
-
-	function isClose(a, b) {
-		return Math.abs(a.x - b.x) <= THRESHOLD_CLOSE && Math.abs(a.y - b.y) <= THRESHOLD_CLOSE;
+	// Returns true when an element is currently visible (skip hidden/animated-out overlays).
+	function isVisible(el) {
+		if (!el) {
+			return false;
+		}
+		if (el.style && (el.style.display === 'none' || el.style.visibility === 'hidden' || el.style.opacity === '0')) {
+			return false;
+		}
+		try {
+			var cs = window.getComputedStyle(el);
+			return cs && cs.visibility !== 'hidden' && cs.opacity !== '0';
+		} catch (e) {
+			return true;
+		}
 	}
 
 	// Corrects a content element whose transform duplicates the wrapper offset.
+	// Correction is per-axis: each large axis that is close to the wrapper's same
+	// axis is reduced by the wrapper value, leaving only the small relative offset.
 	function fixContent(content) {
 		if (!isOverlayContent(content)) {
 			return;
 		}
 		var wrapper = content.parentElement;
 		if (!wrapper || !isOverlayWrapper(wrapper)) {
+			return;
+		}
+		if (!isVisible(content)) {
 			return;
 		}
 
@@ -126,36 +156,44 @@
 			return;
 		}
 
-		// Only when BOTH have a "large" position AND are nearly identical
-		// (the misalignment symptom). Avoids touching popups (wrapper at 0,0)
-		// and healthy overlays.
-		if (isLarge(w) && isLarge(c) && isClose(c, w)) {
-			var dx = c.x - w.x;
-			var dy = c.y - w.y;
-			logAlways('[mw_overlay_fix] FIX APPLIED',
-				'wrapper=(' + w.x + ',' + w.y + ')',
-				'content=(' + c.x + ',' + c.y + ')',
-				'-> (' + dx + ',' + dy + ')',
-				content);
-			log('mw_overlay_fix: fixing overlay', content,
-				'wrapper=(' + w.x + ',' + w.y + ')',
-				'content=(' + c.x + ',' + c.y + ')',
-				'-> (' + dx + ',' + dy + ')');
-			content.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
-		}
-	}
+		var nx = c.x;
+		var ny = c.y;
+		var changed = false;
 
-	function fixElementTree(root) {
-		if (!root || root.nodeType !== 1) {
+		if (Math.abs(c.x) > THRESHOLD_LARGE && Math.abs(c.x - w.x) <= THRESHOLD_CLOSE) {
+			nx = c.x - w.x;
+			changed = true;
+		}
+		if (Math.abs(c.y) > THRESHOLD_LARGE && Math.abs(c.y - w.y) <= THRESHOLD_CLOSE) {
+			ny = c.y - w.y;
+			changed = true;
+		}
+
+		if (!changed) {
 			return;
 		}
-		if (isOverlayContent(root)) {
-			fixContent(root);
+
+		// Apply instantly (no CSS transition) so the fix does not animate/fight
+		// DevExtreme, then restore the previous transition value.
+		var prevTransition = content.style.transition;
+		content.style.transition = 'none';
+		content.style.transform = 'translate(' + nx + 'px, ' + ny + 'px)';
+		void content.getBoundingClientRect(); // force a reflow so it is applied now
+		if (prevTransition) {
+			content.style.transition = prevTransition;
+		} else {
+			content.style.removeProperty('transition');
 		}
-		var contents = root.querySelectorAll('.dx-overlay-content');
-		for (var i = 0; i < contents.length; i++) {
-			fixContent(contents[i]);
-		}
+
+		logAlways('[mw_overlay_fix] FIX APPLIED',
+			'wrapper=(' + w.x + ',' + w.y + ')',
+			'content=(' + c.x + ',' + c.y + ')',
+			'-> (' + nx + ',' + ny + ')',
+			content);
+		log('mw_overlay_fix: fixing overlay', content,
+			'wrapper=(' + w.x + ',' + w.y + ')',
+			'content=(' + c.x + ',' + c.y + ')',
+			'-> (' + nx + ',' + ny + ')');
 	}
 
 	// Full sweep (corrects any overlay already present in the DOM).
@@ -166,23 +204,17 @@
 		}
 	}
 
-	// Deferred sweep (avoids repeated work during bursts of mutations).
+	// Debounced sweep: correct only after the DOM has been quiet for SETTLE_MS.
+	// This decouples the fix from DevExtreme's render/focus phase, which is what
+	// previously caused selectboxes to lose focus and close immediately.
 	function scheduleSweep() {
-		if (scheduled) {
-			return;
+		if (sweepTimer) {
+			window.clearTimeout(sweepTimer);
 		}
-		scheduled = true;
-		if (window.requestAnimationFrame) {
-			window.requestAnimationFrame(function () {
-				scheduled = false;
-				sweep();
-			});
-		} else {
-			window.setTimeout(function () {
-				scheduled = false;
-				sweep();
-			}, 16);
-		}
+		sweepTimer = window.setTimeout(function () {
+			sweepTimer = null;
+			sweep();
+		}, SETTLE_MS);
 	}
 
 	function start() {
@@ -203,24 +235,10 @@
 
 		sweep();
 
-		observer = new MutationObserver(function (mutations) {
-			for (var i = 0; i < mutations.length; i++) {
-				var m = mutations[i];
-				if (m.type === 'attributes') {
-					// An element whose `style` changed (DevExtreme updates the inline transform).
-					if (isOverlayContent(m.target)) {
-						fixContent(m.target);
-					} else if (isOverlayWrapper(m.target)) {
-						fixElementTree(m.target);
-					}
-				} else if (m.type === 'childList') {
-					// New nodes (an overlay was just inserted into the DOM).
-					for (var j = 0; j < m.addedNodes.length; j++) {
-						fixElementTree(m.addedNodes[j]);
-					}
-				}
-			}
-			// Safety net: deferred sweep after bursts or at the end of animations.
+		observer = new MutationObserver(function () {
+			// Any DOM/style change (an overlay was inserted, shown, or repositioned)
+			// just schedules a debounced sweep. The actual correction runs later,
+			// once DevExtreme has settled, so we never interrupt focus/animation.
 			scheduleSweep();
 		});
 
