@@ -218,8 +218,11 @@
 		}
 
 		// Diagnostic: content looks broken (large offset) but the per-axis gate
-		// did not trigger, so we can see why (wrapper not large, or not close).
-		if (!changed && (Math.abs(c.x) > THRESHOLD_LARGE || Math.abs(c.y) > THRESHOLD_LARGE)) {
+		// did not trigger. Only report when the WRAPPER is also large: a wrapper
+		// at (0,0) with a large content is the healthy filter/context-menu case
+		// (fixed full-screen wrapper + content carrying the real position).
+		if (!changed && (Math.abs(w.x) > THRESHOLD_LARGE || Math.abs(w.y) > THRESHOLD_LARGE) &&
+				(Math.abs(c.x) > THRESHOLD_LARGE || Math.abs(c.y) > THRESHOLD_LARGE)) {
 			logAlways('[mw_overlay_fix] NOT FIXED (gate failed)',
 				'wrapper=(' + w.x + ',' + w.y + ')',
 				'content=(' + c.x + ',' + c.y + ')',
