@@ -4,28 +4,28 @@ function mw_devextreme_datagrid_lookup(cod,doptim){
 	this.getDS=function(){
 		var list=this.doptim.get_all_data();
 		if(list){
-			return list;	
+			return list;
 		}
 		return new Array();
 	}
 	this.get_data_col_item=function(cod){
 		if(this.doptim){
-			return this.doptim.get_data_col_item(cod);	
+			return this.doptim.get_data_col_item(cod);
 		}
 	}
 	this.get_data_col_item_value=function(id,cod){
 		var o=this.get_data_col_item(id);
 		if(!o){
-			return false;	
+			return false;
 		}
 		if(!cod){
-			return o;	
+			return o;
 		}
 		return o[cod];
 	}
-	
-	
-		
+
+
+
 }
 function mw_devextreme_datagrid_events_man(cod){
 	this.cod=cod;
@@ -34,19 +34,19 @@ function mw_devextreme_datagrid_events_man(cod){
 		this.dataGridMan=dataGridMan;
 	}
 	this.addHandler=function(handler){
-		
+
 		if(!mw_is_function(handler)){
 			return false;
 		}
 		this.handlers.push(handler);
 		return true;
-		
-			
+
+
 	}
 	this.addEvents2DG=function(dg){
-		
+
 		if(!dg){
-			return false;	
+			return false;
 		}
 		for(var i=0;i<this.handlers.length;i++){
 			if(mw_is_function(this.handlers[i])){
@@ -62,7 +62,7 @@ function mw_devextreme_datagrid_events_man(cod){
 		}
 		var i;
 		for(i=0;i<list.length;i++){
-			this.addHandler(list[i]);	
+			this.addHandler(list[i]);
 		}
 	}
 }
@@ -74,7 +74,7 @@ function mw_devextreme_datagrid_man(params){
 	this.columns=new mw_objcol();
 	this.data=new mw_objcol();//no usado
 	this.data_key="id";//verificar uso
-	
+
 
 	this.getBtnsColumnBtns=function(){
 		//must be called before init_from_params
@@ -110,25 +110,25 @@ function mw_devextreme_datagrid_man(params){
 		return colE;
 
 	}
-	
-	
+
+
 	this.getCurrentColumnsOptionsByName = function(propsToInclude, unsafe) {
 		var data = {};
 		var dg = this.get_data_grid();
-	
+
 		if (!dg) return false;
-	
+
 		var columnCount = dg.columnCount();
 		var allData={};
 		for (var i = 0; i < columnCount; i++) {
 			var col = dg.columnOption(i); // Retrieve full column options
 			let name = col.name;
-	
+
 			if (name) {
 				allData[name] = col;
 				data[name] = {};
 				data[name]._index = i;
-	
+
 				if (unsafe) {
 					// Copy everything, ensuring `visible` is always included
 					data[name] = { ...col, _index: i, visible: col.visible ?? true };
@@ -136,7 +136,7 @@ function mw_devextreme_datagrid_man(params){
 					// Only copy selected properties OR all safe properties if `propsToInclude` is not set
 					for (let key in col) {
 						let value = col[key];
-	
+
 						if (propsToInclude && !propsToInclude.includes(key)) continue; // Skip unwanted properties
 						if (value instanceof Date) {
 							// Convert Date objects to string in ISO 8601 format
@@ -147,8 +147,8 @@ function mw_devextreme_datagrid_man(params){
 							data[name][key] = value ? 1 : 0;
 						}
 					}
-	
-					
+
+
 				}
 			}
 		}
@@ -156,9 +156,9 @@ function mw_devextreme_datagrid_man(params){
 		console.log("data",data);
 		return data;
 	};
-	
-	
-	
+
+
+
 
 
 
@@ -169,70 +169,70 @@ function mw_devextreme_datagrid_man(params){
 	this.get_id_data_key=function(){
 		return this.params.get_param_or_def("idDataKey","id",true);
 	}
-	
+
 	this.isUniqBoolItemByData=function(data,cod){
-		return this.isUniqBoolItem(data[this.get_id_data_key()],cod);	
+		return this.isUniqBoolItem(data[this.get_id_data_key()],cod);
 	}
 	this.isUniqBoolItem=function(id,cod){
 		if(!id){
-			return false;	
+			return false;
 		}
 		if(!cod){
-			return false;	
+			return false;
 		}
 		if(this.params.get_param("uniqBoolItemsIds."+cod)==id){
-			return true;	
+			return true;
 		}
 		return false;
-		
+
 	}
 	this.setUniqBoolItemsIds=function(data){
 		if(!data){
-			return false;	
+			return false;
 		}
 		this.params.set_param(data,"uniqBoolItemsIds");
 	}
 	this.getRelatedObject=function(cod){
 		//beta
 		if(this.relatedObjects){
-			return this.relatedObjects[cod];	
+			return this.relatedObjects[cod];
 		}
-			
+
 	}
-	
+
 	this.setRelatedObject=function(cod,o){
 		if(!this.relatedObjects){
-			this.relatedObjects={};	
+			this.relatedObjects={};
 		}
 		this.relatedObjects[cod]=o;
 	}
-	
-	
-	
+
+
+
 	this.advEventGetMan=function(){
 		if(this.advEventMan){
-			return this.advEventMan;	
+			return this.advEventMan;
 		}
 		this.advEventMan=new mw_events_man();
 		this.advEventInitMan();
 		return this.advEventMan;
-			
+
 	}
 	this.advEventInitMan=function(){
 		if(!this.advEventMan){
-			return false;	
+			return false;
 		}
 		var eventsMansData=this.params.get_param_if_object("advEvents");
 		if(!eventsMansData){
-			return;	
+			return;
 		}
-		
+
 		for(var cod in eventsMansData){
 			this.advEventMan.addHandlers(cod,eventsMansData[cod]);
-			
+
 		}
-		
-		
+
+
 	}
 	this.advEventDispatch=function(cod,data,extraData){
 		//console.log(cod);
@@ -242,29 +242,29 @@ function mw_devextreme_datagrid_man(params){
 		data.dataGridMan=this;
 		var man=this.advEventGetMan();
 		if(man){
-			man.dispatch(cod,data,extraData);	
-			
+			man.dispatch(cod,data,extraData);
+
 		}
 	}
 
-	
-	
+
+
 	this.initDataGridEventsFromParams=function(){
 		if(!this._dataGrid_events){
 			return false;
 		}
 		var eventsMansData=this.params.get_param_if_object("events");
 		if(!eventsMansData){
-			return;	
+			return;
 		}
 		var man;
 		for(var cod in eventsMansData){
 			if(man=this._getDataGridEventsMan(cod)){
 				man.addHandlers(eventsMansData[cod]);
 			}
-			
+
 		}
-			
+
 	}
 	this.getDataGridEventsMainMan=function(){
 		if(this._dataGrid_events){
@@ -273,54 +273,54 @@ function mw_devextreme_datagrid_man(params){
 		this._dataGrid_events=new mw_objcol();
 		this.initDataGridEventsFromParams();
 		return this._dataGrid_events;
-		
-		
+
+
 	}
 	this._getDataGridEventsMan=function(cod){
 		if(!cod){
-			return false;	
+			return false;
 		}
 		if(typeof(cod)!="string"){
-			return false;	
+			return false;
 		}
 		if(!this._dataGrid_events){
 			return false;
 		}
-		
+
 		var m=this._dataGrid_events.get_item(cod);
 		if(m){
-			return m;	
+			return m;
 		}
 		m=new mw_devextreme_datagrid_events_man(cod);
 		m.setDataGridMan(this);
 		this._dataGrid_events.add_item(cod,m);
 		return m;
-		
+
 	}
-	
+
 	this.getDataGridEventsMan=function(cod){
 		if(!this._dataGrid_events){
 			this.getDataGridEventsMainMan();
 		}
 		return this._getDataGridEventsMan(cod);
-		
+
 	}
 	this.addDataGridOn=function(cod,handler){
 		var man=this.getDataGridEventsMan(cod);
 		if(man){
-			return man.addHandler(handler);	
+			return man.addHandler(handler);
 		}
 	}
 	this.onDataGridInitialized=function(e){
 		console.log("onDataGridInitialized",e);
 		if(!this._dataGrid_events){
-			return;	
+			return;
 		}
 		var dg=this.get_data_grid();
 		this._dataGrid_events.exec_fnc_on_items(function(evntMan,evnt){evntMan.addEvents2DG(dg)});
-		
-		
-		
+
+
+
 	}
 	this.set_dataGrid_options_init=function(ops){
 		var _this=this;
@@ -328,41 +328,41 @@ function mw_devextreme_datagrid_man(params){
 			this.addDataGridOn("initialized",ops['onInitialized']);
 		}
 		ops['onInitialized']=function(evnt){_this.onDataGridInitialized(evnt)};
-		
+
 
 	}
-	
-	
-	
+
+
+
 	this.get_adv_events_man=function(){
 		//depreciated
 		console.log("get_adv_events_man depreciated");
 		if(!this.adv_events_man){
-			this.adv_events_man=new mw_events_man();	
+			this.adv_events_man=new mw_events_man();
 		}
 		return this.adv_events_man;
 	}
-	
-	
+
+
 	this.setNewColOptions=function(cod,data){
 		if(!mw_is_object(data)){
-			return false;	
+			return false;
 		}
 		if(!cod){
-			return false;	
+			return false;
 		}
 		var dg=this.get_data_grid();
 		if(!dg){
 			return false;
 		}
 		dg.columnOption(cod,data);
-		
-			
+
+
 	}
-	
+
 	this.updateDataCol=function(cod,data){
 		if(!mw_is_object(data)){
-			return false;	
+			return false;
 		}
 		var dg=this.get_data_grid();
 		if(!dg){
@@ -371,23 +371,23 @@ function mw_devextreme_datagrid_man(params){
 		if(mw_is_object(data["newoptions"])){
 			dg.columnOption(cod,data["newoptions"]);
 		}
-		
-			
+
+
 	}
-	
+
 	this.updateDataCols=function(colsData){
 		if(!mw_is_object(colsData)){
-			return false;	
+			return false;
 		}
 		for(var cod in colsData){
-			this.updateDataCol(cod,colsData[cod]);	
+			this.updateDataCol(cod,colsData[cod]);
 		}
-		
+
 	}
 
 	this.updateData=function(data){
 		if(!mw_is_object(data)){
-			return false;	
+			return false;
 		}
 		var dg=this.get_data_grid();
 		if(!dg){
@@ -396,20 +396,20 @@ function mw_devextreme_datagrid_man(params){
 		this.beginCustomLoading();
 		var new_options={};
 		if(mw_is_object(data["newoptions"])){
-			new_options=data["newoptions"];	
+			new_options=data["newoptions"];
 		}
 		if(mw_is_object(data["dsoptim"])){
 			if(this.set_ds_from_optim(data["dsoptim"])){
-				new_options.dataSource=this.ds_cfg;	
+				new_options.dataSource=this.ds_cfg;
 			}
 		}
-		
+
 		dg.option(new_options);
 		this.updateDataCols(data["cols"]);
 		//dg.refresh();
 		this.endCustomLoading();
-		
-		
+
+
 	}
 	this.endCustomLoading=function(){
 		var dg=this.get_data_grid();
@@ -419,8 +419,8 @@ function mw_devextreme_datagrid_man(params){
 		dg.endCustomLoading();
 		return true;
 	}
-	
-	
+
+
 	this.beginCustomLoading=function(msg){
 		var dg=this.get_data_grid();
 		if(!dg){
@@ -429,75 +429,75 @@ function mw_devextreme_datagrid_man(params){
 		dg.beginCustomLoading(msg);
 		return true;
 	}
-	
-	
-	
+
+
+
 	this.hideHeaderPanel=function(){
 		if(!this.container_selector){
-			return false;	
+			return false;
 		}
 		this.container_selector.find('.dx-datagrid-header-panel').hide();
 	}
 	this.moveHeaderPanel=function(container){
 		if(!container){
-			return false;	
+			return false;
 		}
 		if(!this.container_selector){
-			return false;	
+			return false;
 		}
 		this.container_selector.find('.dx-datagrid-header-panel').appendTo($(container));
 	}
 	this.appendElem2HeaderPanel=function(elem){
 		if(!elem){
-			return false;	
+			return false;
 		}
 		if(!this.container_selector){
-			return false;	
+			return false;
 		}
 		this.container_selector.find('.dx-datagrid-header-panel').append($(elem));
 	}
-	
+
 	this.get_lookup_man=function(cod){
 		if(this.lookups){
-			return this.lookups.get_item(cod);	
+			return this.lookups.get_item(cod);
 		}
 	}
 	this.create_lookups_from_params=function(){
 		var list=this.params.get_param_as_list("lookupsDoptimList");
-		
+
 		var _this=this;
 		if(list){
-			
-			mw_objcol_array_process(list,function(e){_this.set_lookup_by_doptim(e)});	
+
+			mw_objcol_array_process(list,function(e){_this.set_lookup_by_doptim(e)});
 		}
 		list=this.params.get_param_as_list("lookupsList");
 		if(list){
-			mw_objcol_array_process(list,function(e){_this.add_lookup(e)});	
+			mw_objcol_array_process(list,function(e){_this.add_lookup(e)});
 		}
-			
+
 	}
 	this.add_lookup=function(lookup,cod){
 		if(!cod){
-			cod=lookup.cod;	
+			cod=lookup.cod;
 		}
 		if(!cod){
-			return false;	
+			return false;
 		}
-		
+
 		this.lookups.add_item(cod,lookup);
 		return lookup;
-		
-			
+
+
 	}
 	this.set_lookup_by_doptim=function(doptim,cod){
-		
+
 		if(!cod){
-			cod=doptim.params.get_param("cod");	
+			cod=doptim.params.get_param("cod");
 		}
 		if(!cod){
-			return false;	
+			return false;
 		}
-		
+
 		var lu=new mw_devextreme_datagrid_lookup(cod,doptim);
 		return this.add_lookup(lu,cod);
 
@@ -515,21 +515,21 @@ function mw_devextreme_datagrid_man(params){
 	//20240412
 	this.set_ds_from_array=function(list,key){
 		if(!mw_is_array(list)){
-			return false;	
+			return false;
 		}
 		var s={data:list};
 		var op={
 			type: 'array',
-			
+
 		};
 		if(key){
 			op["key"]=key;
-			s["key"]=key;			
+			s["key"]=key;
 		}
 		op.store= new DevExpress.data.ArrayStore(s);
 		this.ds_cfg=op;
 		return true;
-		
+
 	}
 	this.set_ds_from_array_and_refresh=function(list,key){
 		if(!this.set_ds_from_array(list,key)){
@@ -537,14 +537,14 @@ function mw_devextreme_datagrid_man(params){
 		}
 		this.beginCustomLoading();
 		var new_options={};
-		new_options.dataSource=this.ds_cfg;	
-		
+		new_options.dataSource=this.ds_cfg;
+
 		var dg=this.get_data_grid();
 		if(!dg){
 			return false;
 		}
 		dg.option(new_options);
-		
+
 		dg.refresh();
 		this.endCustomLoading();
 		return true;
@@ -557,16 +557,16 @@ function mw_devextreme_datagrid_man(params){
 		}
 		var op={
 			type: 'array',
-			
+
 		};
 		var key=doptim.get_key_cod();
 		var s={
-			data:doptim.get_all_data()	
+			data:doptim.get_all_data()
 		};
 		if(key){
 			op["key"]=key;
-			s["key"]=key;		
-			
+			s["key"]=key;
+
 		}
 		op.store= new DevExpress.data.ArrayStore(s);
 
@@ -574,43 +574,43 @@ function mw_devextreme_datagrid_man(params){
 		this.ds_cfg=op;
 		//console.log("ds_cfg",this.ds_cfg);
 		return true;
-		
-		
+
+
 	}
 	this.get_additional_data_col=function(){
 		if(!this.additional_data_col){
-			this.additional_data_col=new mw_objcol();	
+			this.additional_data_col=new mw_objcol();
 		}
 		return this.additional_data_col;
 	}
 	this.set_additional_data_from_optim=function(doptim){
 		if(!doptim){
-			return false;	
+			return false;
 		}
 		if(!this.get_additional_data_col()){
-			return false;	
+			return false;
 		}
 		return doptim.add2objcol(this.additional_data_col);
 	}
-	
+
 	this.init_from_params=function(){
 		this.create_lookups_from_params();
-		var list=this.params.get_param_as_list("columns");	
+		var list=this.params.get_param_as_list("columns");
 		var _this=this;
 		if(list){
 			///console.log("init_from_params columns",list);
-			mw_objcol_array_process(list,function(e){_this.add_colum(e)});	
+			mw_objcol_array_process(list,function(e){_this.add_colum(e)});
 		}
 		var doptim=this.params.get_param_if_object("additionaldataoptim");
 		if(doptim){
-			this.set_additional_data_from_optim(doptim);	
+			this.set_additional_data_from_optim(doptim);
 		}
 		doptim=this.params.get_param_if_object("dsoptim");
 		if(doptim){
-			
-			this.set_ds_from_optim(doptim);	
+
+			this.set_ds_from_optim(doptim);
 		}
-		
+
 	}
 	this.get_options_copy=function(){
 		var o=new mw_obj();
@@ -652,10 +652,10 @@ function mw_devextreme_datagrid_man(params){
 				o=new mw_obj();
 				o.set_params(list[i].get_options());
 				cols.add_item(cod,o);
-				
+
 			}
 		}
-		
+
 		return cols;
 	}
 	this.onToolbarPreparingItem=function(cod,ops,index){
@@ -671,7 +671,7 @@ function mw_devextreme_datagrid_man(params){
 		}
 	}
 	this.onToolbarPreparing=function(e){
-		
+
 		var _this=this;
 		if(e){
 			if(e.toolbarOptions){
@@ -686,19 +686,19 @@ function mw_devextreme_datagrid_man(params){
 				}
 			}
 		}
-		
+
 	}
-	
+
 	this.create_data_grid_options=function(){
 		var ops=this.params.get_param_if_object("gridoptions",true);
 		var _this=this;
 		if(this.params.get_param_or_def("hideHeaderPanel",false)){
 			if(!ops['onContentReady']){
-				ops['onContentReady']=function(){_this.hideHeaderPanel()};	
+				ops['onContentReady']=function(){_this.hideHeaderPanel()};
 			}
 		}
 		if(!ops['onToolbarPreparing']){
-			ops['onToolbarPreparing']=function(e){_this.onToolbarPreparing(e)};	
+			ops['onToolbarPreparing']=function(e){_this.onToolbarPreparing(e)};
 		}
 		if (!ops['onEditorPreparing']) {
 			ops['onEditorPreparing'] = function(e) { _this.onEditorPreparing(e); };
@@ -709,41 +709,41 @@ function mw_devextreme_datagrid_man(params){
 		var list=this.columns.get_items_by_index();
 		ops.columns=this.get_columns_options();
 		if(this.ds_cfg){
-			ops.dataSource=this.ds_cfg;	
+			ops.dataSource=this.ds_cfg;
 		}
 		//console.log(ops);
 		return ops;
-		
+
 	}
-	
+
 	this.onEditorPreparing  = function(e) {
 		//console.log("onEditorPreparing",e);
 		this.onEditorPreparingFixFilterRowSelect(e);
-		
+
 	};
 	this.onEditorPreparingFixFilterRowSelect  = function(e) {
 		//console.log("onEditorPreparingFixFilterRowSelect",e);
 		if (e.parentType === "filterRow" && e.editorName === "dxSelectBox") {
 			e.editorOptions.onFocusIn = function(e) {
 				const input = e.event?.target;
-				
+
 				if (input && typeof input.select === "function") {
 					setTimeout(function() {
 						input.select();
 					}, 10); // Asegura que el input esté listo
 				}
-					
+
 			};
 		}
 	};
-	
-	
-	
-	
-	
 
-	
-	
+
+
+
+
+
+
+
 	this.getHeaderRowCount=function(grid){
 		if(!grid){
 			grid=this.get_data_grid();
@@ -751,21 +751,21 @@ function mw_devextreme_datagrid_man(params){
 		let level = 0;
 		while (true) {
 			const cols = grid.getVisibleColumns(level);
-			
+
 			if (!cols || cols.length === 0) break;
 			level++;
 		}
-		
+
 		if (grid.option("filterRow.visible")) {
 			level = Math.max(1, level - 1);
 		}
 		return level || 1;
 	};
-	
-	
+
+
 	this.DXonExporting = function(e) {
 		e.component.beginUpdate();
-		
+
 		var sheetName = this.params.get_param_or_def("gridoptions.export.fileName", "data");
 		var fileName = sheetName + ".xlsx";
 		console.log(fileName);
@@ -821,37 +821,37 @@ function mw_devextreme_datagrid_man(params){
 	}
 	this.get_data_grid=function(){
 		if(this.data_grid){
-			return this.data_grid;	
+			return this.data_grid;
 		}
-		
+
 		if(!this.container_selector){
-			return false;	
+			return false;
 		}
 		var dg=$(this.container_selector).dxDataGrid('instance');
 		if(dg){
 			this.data_grid=dg;
-			return this.data_grid;		
+			return this.data_grid;
 		}
-		return false;	
+		return false;
 	}
-	
+
 	this.create_data_grid=function(){
 		this.data_grid=false;
 		var ops=this.create_data_grid_options();
 		var n=this.params.get_param_or_def("gridname",false);
 		if(!n){
-			return false;	
+			return false;
 		}
 		this.container_selector='#'+n;
 		this.container=mw_get_element_by_id(n);
-		
+
 		this.set_dataGrid_options_init(ops);
 		return $('#'+n).dxDataGrid(ops);
 	}
 	this.create_data_grid_on_elem=function(elem){
 		this.data_grid=false;
 		if(!elem){
-			return false;	
+			return false;
 		}
 		this.container=elem;
 		this.container_selector=$(elem);
@@ -859,38 +859,38 @@ function mw_devextreme_datagrid_man(params){
 		this.set_dataGrid_options_init(ops);
 		//this.set_additional_dg_events();
 		return $($(elem)).dxDataGrid(ops);
-		
+
 	}
-	
+
 	this.get_columns_options=function(){
 		var r=new Array();
 		var list=this.columns.get_items_by_index();
 		for(var i=0;i<list.length;i++){
 			//
-			
-			r.push(list[i].get_options());	
+
+			r.push(list[i].get_options());
 		}
 		console.log("params",this.params.params);
 		if(list=this.params.get_param_as_list("columnsExtra")){
 			for(i=0;i<list.length;i++){
-				r.push(list[i]);	
-			}	
+				r.push(list[i]);
+			}
 		}
-		
+
 		return r;
 	}
 	this.add_colum=function(col){
 		if(!col){
-			return false;	
+			return false;
 		}
 		var cod=col.cod;
 		this.columns.add_item(cod,col);
 		col.setDGMan(this);
-		return col;	
+		return col;
 	}
-	
-	
-	
+
+
+
 }
 function mw_devextreme_datagrid_column_abs(){
 	this.init=function(cod,params){
@@ -906,16 +906,16 @@ function mw_devextreme_datagrid_column_abs(){
 	}
 	this.getRelatedObject=function(cod){
 		if(this.dgMan){
-			return this.dgMan.getRelatedObject(cod);	
+			return this.dgMan.getRelatedObject(cod);
 		}
-			
+
 	}
 	this.headerCellTemplateTooltipMode=function(header, info){
 		var c=$('<div>').html(info.column.caption);
 		c.appendTo(header);
 		var o=this.params.get_param_if_object("header.tooltip.options");
 		if(!o){
-			return;	
+			return;
 		}
 		if(!o["placement"]){
 			o["placement"]="left";
@@ -925,10 +925,10 @@ function mw_devextreme_datagrid_column_abs(){
 	this.setNewColOptions=function(newOpts){
 		//data["newoptions"]
 		if(!this.dgMan){
-			return false;	
+			return false;
 		}
 		this.dgMan.setNewColOptions(this.cod,newOpts);
-	
+
 	}
 	this.updateColOptionsOnEditing=function(info,is_new){
 		var k="newColOptionsForNotNew";
@@ -937,41 +937,41 @@ function mw_devextreme_datagrid_column_abs(){
 		}
 		var o=this.params.get_param_if_object(k);
 		if(!o){
-			return;	
+			return;
 		}
 		this.setNewColOptions(o);
 	}
-	
+
 	this.setDGMan=function(dgMan){
 		this.dgMan=dgMan;
 		this.afterDGManSetted();
 	}
 	this.afterDGManSetted=function(){
 		if(this.params.get_param_if_function("onEditorPreparing")){
-			this.dgMan.onEditorPreparingColsEnabled=true;	
-			this.onEditorPreparingColsEnabled=true;	
+			this.dgMan.onEditorPreparingColsEnabled=true;
+			this.onEditorPreparingColsEnabled=true;
 		}
 	}
 	this.onEditorPreparing=function(info){
 		console.log("onEditorPreparing",info);
 		var fnc=this.params.get_param_if_function("onEditorPreparing");
 		if(fnc){
-			fnc(info,this);	
+			fnc(info,this);
 		}
 		//this.onEditorPreparingFixSelectFilters(info);
 	}
-	
+
 	this.set_col_options_lookup_from_man=function(opts){
 		var cod=this.params.get_param_or_def("lookupFromMan.cod",false);
 		if(!cod){
 			return false;
 		}
 		if(!this.dgMan){
-			return false;	
+			return false;
 		}
 		var lu=this.dgMan.get_lookup_man(cod);
 		if(!lu){
-			return false;	
+			return false;
 		}
 		var valueExpr=this.params.get_param_or_def("lookupFromMan.valueExpr",false);
 		var displayExpr=this.params.get_param_or_def("lookupFromMan.displayExpr",false);
@@ -984,23 +984,23 @@ function mw_devextreme_datagrid_column_abs(){
 		opts["lookup"]={valueExpr:valueExpr,displayExpr:displayExpr,dataSource:lu.getDS()};
 		return true;
 	}
-	
+
 	this.set_col_options=function(opts){
-		
-		this.set_col_options_lookup_from_man(opts);	
+
+		this.set_col_options_lookup_from_man(opts);
 		this.set_col_options_headerCellTemplate(opts);
-		
+
 	}
 	this.set_col_options_headerCellTemplate=function(opts){
 		if(opts["headerCellTemplate"]){
-			return;		
+			return;
 		}
 		var _this=this;
 		if(this.params.get_param_or_def("header.tooltip.byTemplate",false)){
 			opts["headerCellTemplate"]=function(header, info){_this.headerCellTemplateTooltipMode(header, info)};
 		}
-		
-			
+
+
 	}
 	this.getDataFieldCod=function(){
 		var c=this.params.get_param_or_def("options.dataField",false);
@@ -1010,24 +1010,24 @@ function mw_devextreme_datagrid_column_abs(){
 		if(!mw_is_object(rawData)){
 			return false;
 		}
-		
+
 		var c=this.getDataFieldCod();
 		if(!c){
-			return false;	
+			return false;
 		}
 		return rawData[c];
 	}
-	
+
 	this.get_options=function(){
 		var o=this.params.get_param_or_def("options",{});
 		this.set_col_options(o);
 		if(!o["name"]){
-			o.name=this.cod;	
+			o.name=this.cod;
 		}
-		return o;	
+		return o;
 	}
 	this.after_init=function(){};
-		
+
 }
 
 function mw_devextreme_datagrid_column(cod,params){
@@ -1037,14 +1037,14 @@ mw_devextreme_datagrid_column.prototype=new mw_devextreme_datagrid_column_abs();
 function mw_devextreme_datagrid_column_with_filter_lookup(cod,params){
 	mw_devextreme_datagrid_column_abs.call(this);
 	this.set_col_options=function(opts){
-		
-		this.set_col_options_lookup_from_man(opts);	
+
+		this.set_col_options_lookup_from_man(opts);
 		this.set_col_options_headerCellTemplate(opts);
 		var _this=this;
 		if(!opts["editCellTemplate"]){
 			opts["editCellTemplate"]=function(cellElement, cellInfo){_this.editCellTemplate(cellElement, cellInfo)};
 		}
-		
+
 	}
 	this.getEditCellLookupOptions=function(data){
 		var cod=this.params.get_param_or_def("lookupFromMan.cod",false);
@@ -1052,15 +1052,15 @@ function mw_devextreme_datagrid_column_with_filter_lookup(cod,params){
 			return false;
 		}
 		if(!this.dgMan){
-			return false;	
+			return false;
 		}
 		var lu=this.dgMan.get_lookup_man(cod);
 		if(!lu){
-			return false;	
+			return false;
 		}
 		var list=lu.getDS();
 		if(!list){
-			return [];		
+			return [];
 		}
 		var fnc=this.params.get_param_if_function("lookupFromMan.filterForEdit");
 		var r=[];
@@ -1071,11 +1071,11 @@ function mw_devextreme_datagrid_column_with_filter_lookup(cod,params){
 			ok=true;
 			if(fnc){
 				if(!fnc(data,o)){
-					ok=false;	
+					ok=false;
 				}
 			}
 			if(ok){
-				r.push(o);	
+				r.push(o);
 			}
 		}
 		return r;
@@ -1084,7 +1084,7 @@ function mw_devextreme_datagrid_column_with_filter_lookup(cod,params){
 		var div = document.createElement("div");
 		cellElement.get(0).appendChild(div);
 		//console.log(cellInfo);
-		
+
 		var valueExpr=this.params.get_param_or_def("lookupFromMan.valueExpr","cod");
 		var displayExpr=this.params.get_param_or_def("lookupFromMan.displayExpr","name");
 		var selectBoxData = this.getEditCellLookupOptions(cellInfo.data);
@@ -1100,9 +1100,9 @@ function mw_devextreme_datagrid_column_with_filter_lookup(cod,params){
                     }
 		});
 	}
-	
+
 	this.init(cod,params);
-	
+
 }
 function mw_devextreme_datagrid_column_band(cod,params){
 	mw_devextreme_datagrid_column_abs.call(this);
@@ -1110,13 +1110,13 @@ function mw_devextreme_datagrid_column_band(cod,params){
 		var _this=this;
 	}
 	this.init(cod,params);
-		
+
 }
 
 
 function mw_devextreme_datagrid_column_link(cod,params){
 	mw_devextreme_datagrid_column_abs.call(this);
-	
+
 	this.cellTemplate=function(cellElement, cellInfo){
 		var args=this.params.get_param_if_object("link_mode.args");
 		var varargs=this.params.get_param_if_object("link_mode.varargs");
@@ -1127,7 +1127,7 @@ function mw_devextreme_datagrid_column_link(cod,params){
 		var elem=document.createElement("a");
 		elem.href=url;
 		if(target){
-			elem.target=target;	
+			elem.target=target;
 		}
 		elem.innerHTML=cellInfo.text;
 		$(elem)
@@ -1142,16 +1142,16 @@ function mw_devextreme_datagrid_column_link(cod,params){
 		}
 	}
 	this.init(cod,params);
-		
+
 }
 function mw_devextreme_datagrid_column_txtlinebreak(cod,params){
 	mw_devextreme_datagrid_column_abs.call(this);
-	
+
 	this.cellTemplate=function(cellElement, cellInfo){
 		var str=cellInfo.text;
 		var elem=document.createElement("div");
 		var breakTag = '<br>';
-		elem.innerHTML=(str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');		
+		elem.innerHTML=(str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
 		//elem.innerHTML=cellInfo.text;
 		$(elem)
           .appendTo(cellElement);
@@ -1161,7 +1161,7 @@ function mw_devextreme_datagrid_column_txtlinebreak(cod,params){
 		cellElement.get(0).appendChild(div);
 		var ops=this.params.get_param_if_object("editorTextareaOptions");
 		if(!ops){
-			ops={};	
+			ops={};
 		}
 		ops.onKeyDown=function(e){
 			if(e){
@@ -1169,7 +1169,7 @@ function mw_devextreme_datagrid_column_txtlinebreak(cod,params){
 					e.event.stopPropagation();
 				}
 			}
-			
+
 		}
 		ops.onValueChanged=function (e) {
 			cellInfo.setValue(e.value);
@@ -1187,7 +1187,7 @@ function mw_devextreme_datagrid_column_txtlinebreak(cod,params){
 		}
 	}
 	this.init(cod,params);
-		
+
 }
 function mw_devextreme_datagrid_column_txtLongText(cod,params){
 	mw_devextreme_datagrid_column_txtlinebreak.call(this);
@@ -1207,9 +1207,38 @@ function mw_devextreme_datagrid_column_txtLongText(cod,params){
         showEvent: "dxclick",
         width: 500
    		});
-		
+
 	}
-	
+
+}
+
+function mw_devextreme_datagrid_column_html(cod,params){
+	mw_devextreme_datagrid_column_abs.call(this);
+	this.cellTemplate=function(cellElement, cellInfo){
+		var elem=document.createElement("div");
+		elem.innerHTML=cellInfo.value;
+		$(elem).appendTo(cellElement);
+	}
+	this.editCellTemplate=function(cellElement, cellInfo){
+		var div=document.createElement("div");
+		cellElement.get(0).appendChild(div);
+		$(div).dxHtmlEditor({
+			height:200,
+			toolbar:{items:['bold','italic']},
+			value:cellInfo.value,
+			onValueChanged:function(e){cellInfo.setValue(e.value);}
+		});
+	}
+	this.set_col_options=function(opts){
+		var _this=this;
+		if(!opts["cellTemplate"]){
+			opts.cellTemplate=function(cellElement, cellInfo){return _this.cellTemplate(cellElement, cellInfo)};
+		}
+		if(!opts["editCellTemplate"]){
+			opts.editCellTemplate=function(cellElement, cellInfo){return _this.editCellTemplate(cellElement, cellInfo)};
+		}
+	}
+	this.init(cod,params);
 }
 
 function mw_devextreme_datagrid_column_datetime(cod,params){
@@ -1227,22 +1256,22 @@ function mw_devextreme_datagrid_column_datetime(cod,params){
 		var mwd=this.get_mw_date();
 		return mwd.formatDateGlobalize(cellInfo.value,dformat,tformat);
 	}
-	
+
 	this.set_col_options=function(opts){
 		var _this=this;
 		if(!opts["editorOptions"]){
-			opts["editorOptions"]={};	
+			opts["editorOptions"]={};
 		}
 		if(!opts["editorOptions"]["format"]){
-			opts["editorOptions"]["format"]="datetime";	
+			opts["editorOptions"]["format"]="datetime";
 		}
 		if(!opts["editorOptions"]["formatString"]){
-			opts["editorOptions"]["formatString"]="x";	
+			opts["editorOptions"]["formatString"]="x";
 		}
-		
+
 	}
 	this.init(cod,params);
-		
+
 }
 function mw_devextreme_datagrid_column_hour(cod,params){
 	mw_devextreme_datagrid_column_abs.call(this);
@@ -1255,40 +1284,40 @@ function mw_devextreme_datagrid_column_hour(cod,params){
 		return this.mw_date;
 	}
 	this.setCellValue=function(rowData, value){
-		
+
 		var mwD=this.get_mw_date();
 		var date = mwD.get_date_from_sys_formated_str(value);
 		var v=mwD.format_date_as_sys_value_defMode(date);
 		var c=this.getDataFieldCod();
 		if(!c){
-			return;	
+			return;
 		}
 		rowData[c]=v;
 	}
-	
-	
+
+
 	this.set_col_options=function(opts){
 		var _this=this;
 		opts["dataType"]="date";
 		opts["format"]="shortTime";
 		opts["setCellValue"]=function(a,b){_this.setCellValue(a,b)};
-		
+
 		if(!opts["editorOptions"]){
-			opts["editorOptions"]={};	
+			opts["editorOptions"]={};
 		}
 		if(!opts["editorOptions"]["format"]){
-			opts["editorOptions"]["format"]="shortTime";	
+			opts["editorOptions"]["format"]="shortTime";
 		}
 		if(!opts["editorOptions"]["pickerType"]){
-			opts["editorOptions"]["pickerType"]="list";	
+			opts["editorOptions"]["pickerType"]="list";
 		}
 		if(!opts["editorOptions"]["formatString"]){
-			opts["editorOptions"]["formatString"]="t";	
+			opts["editorOptions"]["formatString"]="t";
 		}
-		
+
 	}
 	this.init(cod,params);
-		
+
 }
 
 function mw_devextreme_datagrid_column_mnu(cod,params){
@@ -1296,24 +1325,24 @@ function mw_devextreme_datagrid_column_mnu(cod,params){
 	this.mnu_items=new mw_objcol();
 	this.add_mnu_item=function(mnu_item){
 		var cod=mnu_item.cod;
-		
+
 		this.mnu_items.add_item(cod,mnu_item);
-		return mnu_item;	
+		return mnu_item;
 	}
 	this.after_init=function(){
 		var list =this.params.get_param_as_list("mnuitems");
 		if(!list){
-			return;	
+			return;
 		}
 		for(var i=0;i<list.length;i++){
-			this.add_mnu_item(list[i]);	
+			this.add_mnu_item(list[i]);
 		}
 	};
-	
+
 	this.editCellTemplate=function(cellElement, cellInfo){
 		$('<span></span>')
           .appendTo(cellElement);
-		
+
 	}
 	this.get_items_instances=function(cellElement, cellInfo){
 		if(cellInfo.data._in_new){
@@ -1321,22 +1350,22 @@ function mw_devextreme_datagrid_column_mnu(cod,params){
 		}
 		var list =this.mnu_items.get_items_by_index();
 		if(!list){
-			return;	
+			return;
 		}
 		var r=new Array();
 		for(var i=0;i<list.length;i++){
-			
-			list[i].add2intancesList(r,cellElement, cellInfo);	
+
+			list[i].add2intancesList(r,cellElement, cellInfo);
 		}
 		if(r.length>0){
-			return r;	
+			return r;
 		}
-		
-		
-			
+
+
+
 	}
 	this.cellTemplate=function(cellElement, cellInfo){
-		
+
 		$('<span></span>')
           .appendTo(cellElement);
 		if(cellInfo.data._in_new){
@@ -1345,22 +1374,22 @@ function mw_devextreme_datagrid_column_mnu(cod,params){
 		if(cellInfo.data._new){
 			return;
 		}
-		
-		
+
+
 		var list =this.get_items_instances(cellElement, cellInfo);
 		if(!list){
-			return;	
+			return;
 		}
 		var mnucontainer=$('<span class="mw_mnu_cell"></span>');
 		mnucontainer.appendTo(cellElement);
 		for(var i=0;i<list.length;i++){
-			
-			list[i].add2Container(mnucontainer);	
+
+			list[i].add2Container(mnucontainer);
 		}
-		 
-		
+
+
 	}
-	
+
 	this.set_col_options=function(opts){
 		var _this=this;
 		if(!opts["editCellTemplate"]){
@@ -1369,10 +1398,10 @@ function mw_devextreme_datagrid_column_mnu(cod,params){
 		if(!opts["cellTemplate"]){
 			opts.cellTemplate=function(cellElement, cellInfo){_this.cellTemplate(cellElement, cellInfo)};
 		}
-		
+
 	}
 	this.init(cod,params);
-		
+
 }
 
 function mw_devextreme_datagrid_column_mnu_item_instance(mnuitem,cellElement, cellInfo){
@@ -1383,16 +1412,16 @@ function mw_devextreme_datagrid_column_mnu_item_instance(mnuitem,cellElement, ce
 		var elem=this.get_dom_elem();
 		if(elem){
 			if(container){
-				$(elem).appendTo(container);	
+				$(elem).appendTo(container);
 			}
 		}
 	}
 	this.get_data=function(cod){
 		if(!mw_is_object(this.cellInfo)){
-			return false;	
+			return false;
 		}
 		if(!mw_is_object(this.cellInfo.data)){
-			return false;	
+			return false;
 		}
 		if(!cod){
 			return 	this.cellInfo.data;
@@ -1412,48 +1441,48 @@ function mw_devextreme_datagrid_column_mnu_item_instance(mnuitem,cellElement, ce
 				cc=p[cod];
 				if(cc){
 					if(v=this.get_data(cc)){
-						args[cod]=v;		
+						args[cod]=v;
 					}
 				}
 			}
 			var mwurl=new mw_url();
 			url=mwurl.get_url(url,args);
-			
-			
+
+
 		}
 		elem.href=url;
 		p=this.mnuitem.params.get_param_or_def("target",false);
 		if(p){
-			elem.target=p;	
+			elem.target=p;
 		}
 		p=this.mnuitem.params.get_param_or_def("iconClass",false);
 		if(p){
-			elem.className=p;	
+			elem.className=p;
 		}
 		p=this.mnuitem.params.get_param_or_def("lbl",false);
 		if(p){
-			elem.title=p;	
+			elem.title=p;
 		}
 		if(this.mnuitem.handle_click()){
-			elem.onclick=function(){return _this.onclick()};		
+			elem.onclick=function(){return _this.onclick()};
 		}
 		return elem;
-		
-			
+
+
 	}
 	this.onclick=function(){
 		return this.mnuitem.onInstanceClick(this);
 	}
-	
+
 	this.get_dom_elem=function(){
 		if(!this.dom_elem){
-			this.dom_elem=this.create_dom_elem();	
+			this.dom_elem=this.create_dom_elem();
 		}
 		return this.dom_elem;
 	}
-	
 
-	
+
+
 }
 
 function mw_devextreme_datagrid_column_mnu_item_abs(){
@@ -1466,13 +1495,13 @@ function mw_devextreme_datagrid_column_mnu_item_abs(){
 	this.onInstanceClick=function(instance){
 		var fnc=this.params.get_param_if_function("onclick");
 		if(!fnc){
-			return;	
+			return;
 		}
 		return fnc(instance);
 	}
 	this.handle_click=function(){
 		if(	this.params.get_param_if_function("onclick")){
-			return true;	
+			return true;
 		}
 		return false;
 	}
@@ -1483,12 +1512,12 @@ function mw_devextreme_datagrid_column_mnu_item_abs(){
 	this.add2intancesList=function(list,cellElement, cellInfo){
 		var e=this.new_instance(cellElement, cellInfo);
 		if(e){
-			list.push(e);	
+			list.push(e);
 		}
 	}
 	this.add2cellTemplate=function(cellElement, cellInfo){
 		//en desuso
-		
+
 		var url=this.params.get_param_or_def("href","#");
 		var p=this.params.get_param_if_object("hrefvariables");
 		if(p){
@@ -1497,24 +1526,24 @@ function mw_devextreme_datagrid_column_mnu_item_abs(){
 			for(var cod in p){
 				cc=p[cod];
 				if(cellInfo.data[cc]){
-					args[cod]=cellInfo.data[cc];	
+					args[cod]=cellInfo.data[cc];
 				}
-				//if(	
+				//if(
 			}
 			var mwurl=new mw_url();
 			url=mwurl.get_url(url,args);
-			
-			
+
+
 		}
 		var html="<a href='"+url+"'  class='"+this.params.get_param_or_def("iconClass","")+"'  title='"+this.params.get_param_or_def("lbl","")+"'  aria-hidden='true'></a>";
-		
+
 		$(html)
           .appendTo(cellElement);
-		
+
 	}
-	
+
 	this.after_init=function(){};
-		
+
 }
 function mw_devextreme_datagrid_column_mnu_item(cod,params){
 	this.init(cod,params);
@@ -1535,36 +1564,36 @@ function mw_devextreme_datagrid_column_concatdata(cod,params){
 	this.get_data_item_name=function(cod){
 		var ditem=this.data_items.get_item(cod);
 		if(ditem){
-			return ditem.name;	
+			return ditem.name;
 		}
 		return false;
 	}
 	this.get_calculateCellValue_sep=function(){
-		return ", ";	
+		return ", ";
 	}
 	this.calculateCellValue=function(data){
 		var str=this.getDataFieldValue(data);
 		if(!str){
-			return "";	
+			return "";
 		}
 		var txts=new Array();
 		var name;
 		str=str+"";
-		
+
 		var list=str.split(",");
 		for(var i=0;i<list.length;i++){
 			if(name=this.get_data_item_name(list[i])){
 				txts.push(name);
-				
+
 			}
 		}
 		if(txts.length<=0){
-			return "";	
+			return "";
 		}
 		var sep=this.get_calculateCellValue_sep();
-		
-		
-		return txts.join(sep);	
+
+
+		return txts.join(sep);
 	}
 
 	this.getLookup=function(){
@@ -1574,34 +1603,34 @@ function mw_devextreme_datagrid_column_concatdata(cod,params){
 		if(list){
 			for(var i=0;i<list.lenght;i++){
 				ditem=list[i];
-				ds.push({id:ditem.id,name:ditem.name});	
+				ds.push({id:ditem.id,name:ditem.name});
 			}
 		}
 		var lu={
-			dataSource: ds, valueExpr: 'id', displayExpr: 'name' 
+			dataSource: ds, valueExpr: 'id', displayExpr: 'name'
 		}
 		return lu;
 	}
 	this.set_col_options=function(opts){
 		var _this=this;
-		opts["encodeHtml"]=false;	
+		opts["encodeHtml"]=false;
 		if(!opts["lookup"]){
 			//opts.lookup=_this.getLookup();
 		}
 		if(!opts["calculateCellValue"]){
 			opts.calculateCellValue=function(d){return _this.calculateCellValue(d)};
 		}
-		
+
 	}
 	this.init(cod,params);
-		
+
 }
 
 function mw_devextreme_datagrid_column_tagBox(cod,params){
 	mw_devextreme_datagrid_column_abs.call(this);
 	this.set_col_options=function(opts){
 		var _this=this;
-		opts["encodeHtml"]=false;	
+		opts["encodeHtml"]=false;
 		if(!opts["editCellTemplate"]){
 			opts.editCellTemplate=function(cellElement, cellInfo){return _this.editCellTemplate(cellElement, cellInfo)}
 		}
@@ -1610,20 +1639,20 @@ function mw_devextreme_datagrid_column_tagBox(cod,params){
 		}
 		if(opts.lookup){
 			if(!opts.lookup.calculateCellValue){
-				opts.lookup.calculateCellValue=function(rowData){return _this.lookupCalculateCellValue(rowData,this)}	
+				opts.lookup.calculateCellValue=function(rowData){return _this.lookupCalculateCellValue(rowData,this)}
 			}
 		}
-		
+
 	}
-	
-	
+
+
 	this.lookupCalculateCellValue=function(rowData,lookup){
 		var av=[];
 		if(mw_is_array(rowData)){
 			av=	rowData;
 		}else{
 			if(rowData){
-				av=String(rowData).split(",");	
+				av=String(rowData).split(",");
 			}
 		}
 		var txts=[];
@@ -1633,24 +1662,24 @@ function mw_devextreme_datagrid_column_tagBox(cod,params){
 				for(var i=0;i<av.length;i++){
 					if(av[i]){
 						if(txt=lookup.valueMap[av[i]]){
-							txts.push(txt);	
+							txts.push(txt);
 						}
 					}
 				}
-					
+
 			}
 		}
 		var r=txts.join(", ")+"";
 		return r;
 	}
-	
+
 	this.editCellTemplate=function(cellElement, cellInfo){
 		var av=[];
 		if(mw_is_array(cellInfo.value)){
 			av=	cellInfo.value;
 		}else{
 			if(cellInfo.value){
-				av=String(cellInfo.value).split(",");	
+				av=String(cellInfo.value).split(",");
 			}
 		}
 		return $("<div>").dxTagBox({
@@ -1665,7 +1694,7 @@ function mw_devextreme_datagrid_column_tagBox(cod,params){
             onValueChanged: function(e) {
 				var sv="";
 				if(mw_is_array(e.value)){
-					sv=e.value.join(",");	
+					sv=e.value.join(",");
 				}else{
 					sv=	e.value;
 				}
@@ -1677,16 +1706,16 @@ function mw_devextreme_datagrid_column_tagBox(cod,params){
         });
 	}
 	this.cellTemplate=function(container, options){
-		
+
 		var c=$("<div>")
 		c.addClass("mwDXdgCellLongTxt");
 		c.appendTo(container);
 		c.text(options.column.lookup.calculateCellValue(options.value));
-					
+
 	}
 
 	this.init(cod,params);
-		
+
 }
 
 
