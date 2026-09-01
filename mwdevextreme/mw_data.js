@@ -270,7 +270,9 @@ function mw_devextreme_data(params){
 
 		var allData = [];
 		var batchSize = this.params.get_param_or_def("batchSize", 500);
-		var keyField = this.getDataKey(); // typically "id"
+		// Batch pagination key. Configurable so a report can page by a
+		// different column (e.g. "register") than the store key ("id").
+		var keyField = this.params.get_param_or_def("batchKey", this.getDataKey());
 		var lastKey = null;
 		var seenKeys = new Set();
 		var done = false;
