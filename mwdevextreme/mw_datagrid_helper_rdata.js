@@ -413,18 +413,7 @@ function mw_devextreme_datagrid_man_rdataedit(params){
 			return false;
 		}
 		this.setUniqBoolItemsIds(data.get_param_if_object("uniqItemsIds"));
-		var itemdata=data.get_param_if_object("itemdata");
-		if(!itemdata){
-			return false;	
-		}
-		var id=loader.dataItemKey;
-		if(!id){
-			return false;	
-		}
-		var _this=this;
-		return this.updateItemData(id,itemdata,function(dataItem){_this.refreshGrid();});
-		
-		
+		this.refreshGrid();
 	}
 	
 	this.onInitNewRowDef=function(info){
