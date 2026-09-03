@@ -322,7 +322,6 @@ function mw_devextreme_datagrid_man_rdataedit(params){
 		
 		loader.dataItemKey=id;
 		loader.set_url(url,p);
-		info.cancel=true;
 		loader.exec();
 
 		
