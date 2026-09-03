@@ -320,10 +320,9 @@ function mw_devextreme_datagrid_man_rdataedit(params){
 		//console.log(p);
 		var loader=new mw_devextreme_datagrid_ajax_saveItem(this);
 		
-		if(uniqKey){
-			loader.dataItemKey=info.oldData[uniqKey];
-		}
+		loader.dataItemKey=id;
 		loader.set_url(url,p);
+		info.cancel=true;
 		loader.exec();
 
 		
