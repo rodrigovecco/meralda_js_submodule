@@ -762,6 +762,23 @@ function mw_devextreme_datagrid_man(params){
 		return level || 1;
 	};
 
+		this.applyExcelExportBorders = function(worksheet, cellRange) {
+			if (!worksheet || !cellRange || !cellRange.from || !cellRange.to) {
+				return;
+			}
+			var border = {
+				top: { style: 'thin', color: { argb: 'FFB7B7B7' } },
+				left: { style: 'thin', color: { argb: 'FFB7B7B7' } },
+				bottom: { style: 'thin', color: { argb: 'FFB7B7B7' } },
+				right: { style: 'thin', color: { argb: 'FFB7B7B7' } }
+			};
+			for (var rowIndex = cellRange.from.row; rowIndex <= cellRange.to.row; rowIndex++) {
+				for (var columnIndex = cellRange.from.column; columnIndex <= cellRange.to.column; columnIndex++) {
+					worksheet.getCell(rowIndex, columnIndex).border = border;
+				}
+			}
+		};
+
 
 	this.DXonExporting = function(e) {
 		e.component.beginUpdate();
@@ -774,6 +791,7 @@ function mw_devextreme_datagrid_man(params){
 		var workbook = new ExcelJS.Workbook();
 		var worksheet = workbook.addWorksheet(sheetName);
 		var addColCods = this.params.get_param_or_def("addColCodsToExcel", false);
+		var excelExportBorders = this.params.get_param_or_def("excelExportBorders", false);
 
 		DevExpress.excelExporter.exportDataGrid({
 			component: e.component,
@@ -788,6 +806,15 @@ function mw_devextreme_datagrid_man(params){
 				row.font = { italic: true, color: { argb: 'FF666666' } };
 				row.alignment = { horizontal: 'left' };
 				row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F5F5' } };
+			}
+			if (excelExportBorders) {
+				_this.applyExcelExportBorders(worksheet, {
+					from: cellRange.from,
+					to: {
+						row: cellRange.to.row + (addColCods ? 1 : 0),
+						column: cellRange.to.column
+					}
+				});
 			}
 		})
 		.then(function() {
