@@ -34,7 +34,11 @@ function mw_bootstrap_helper_panel(options){
 			  'aria-expanded': 'true',
     	});
 		this.panelBodyContainer=document.createElement("div");
-		this.panelBodyContainer.className="card-collapse collapse in";
+		// Bootstrap 5: ".collapse" oculta el bloque salvo que lleve ".show".
+		// Sin "show" el cuerpo del panel (barra de progreso, textos, etc.) queda
+		// en display:none, y si no hay titulo el header tambien esta oculto,
+		// asi que no hay forma de abrirlo.
+		this.panelBodyContainer.className="card-collapse collapse in show";
 		this.panel.appendChild(this.panelBodyContainer);
 		
 		
